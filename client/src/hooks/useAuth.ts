@@ -12,6 +12,17 @@ export function useAuth() {
     };
 
     checkAuth();
+
+    // Listen for storage changes to detect login/logout
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const logout = () => {

@@ -32,7 +32,8 @@ export default function Login() {
           title: 'Success',
           description: 'Login successful',
         });
-        setLocation('/');
+        // Force page reload to ensure auth state updates
+        window.location.href = '/';
       } else {
         const error = await response.json();
         toast({
