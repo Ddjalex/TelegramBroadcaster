@@ -190,20 +190,97 @@ export default function Settings() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Welcome Image URL (Optional)</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        <span>Welcome Image (Optional)</span>
+                        {field.value && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            Image Set
+                          </span>
+                        )}
+                      </FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="https://example.com/welcome-image.jpg"
-                          {...field}
-                        />
+                        <div className="space-y-3">
+                          <Input
+                            placeholder="https://example.com/welcome-image.jpg"
+                            {...field}
+                          />
+                          {field.value && (
+                            <div className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
+                              <div className="text-sm font-medium mb-2">Image Preview:</div>
+                              <img 
+                                src={field.value} 
+                                alt="Welcome message preview" 
+                                className="max-w-full h-48 object-cover rounded border"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (nextElement) {
+                                    nextElement.style.display = 'block';
+                                  }
+                                }}
+                              />
+                              <div className="text-red-500 text-sm mt-2" style={{ display: 'none' }}>
+                                ⚠️ Image failed to load. Please check the URL.
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
-                      <div className="text-xs text-muted-foreground">
-                        Upload your image to any image hosting service and paste the URL here
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>• Upload your image to an image hosting service (like imgur.com, postimg.cc) and paste the URL here</p>
+                        <p>• Recommended size: 600x400 pixels or larger</p>
+                        <p>• Supported formats: JPG, PNG, GIF</p>
+                        <p>• If no image is provided, only text will be sent</p>
                       </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Message Preview */}
+                {(welcomeForm.watch("title") || welcomeForm.watch("description")) && (
+                  <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
+                    <div className="text-sm font-medium mb-3 text-blue-900 dark:text-blue-200">
+                      📱 Telegram Preview:
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
+                      {welcomeForm.watch("imageUrl") && (
+                        <div className="mb-3">
+                          <img 
+                            src={welcomeForm.watch("imageUrl")} 
+                            alt="Preview" 
+                            className="w-full max-w-xs h-32 object-cover rounded"
+                            onError={(e) => e.currentTarget.style.display = 'none'}
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <div className="font-medium text-lg">
+                          {welcomeForm.watch("title") || "Welcome to our Broadcast Bot!"}
+                        </div>
+                        <div className="text-gray-600 dark:text-gray-300">
+                          {welcomeForm.watch("description") || "Get real-time notifications and important updates..."}
+                        </div>
+                        <div className="mt-3">
+                          <div className="inline-block bg-blue-500 text-white px-4 py-2 rounded text-sm">
+                            {welcomeForm.watch("buttonText") || "START"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Image Hosting Tips */}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                  <div className="text-sm font-medium mb-2">🖼️ Quick Image Hosting Options:</div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>• <a href="https://imgur.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">imgur.com</a> - Free image hosting with direct links</p>
+                    <p>• <a href="https://postimg.cc" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">postimg.cc</a> - Simple upload, get direct URL</p>
+                    <p>• <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">imgbb.com</a> - Upload and share images easily</p>
+                    <p>• Or use your website's media folder if you have one</p>
+                  </div>
+                </div>
 
                 <Button
                   type="submit"

@@ -97,8 +97,9 @@ class TelegramService {
           const imageUrl = imageUrlSetting?.value || '';
 
           // Send welcome image first if provided
-          if (imageUrl) {
+          if (imageUrl && imageUrl.trim()) {
             try {
+              console.log(`Sending welcome image to user ${user.firstName || user.username}: ${imageUrl}`);
               await this.bot?.sendPhoto(chatId, imageUrl, {
                 caption: `${title}\n\n${description}`,
                 reply_markup: {
@@ -109,8 +110,10 @@ class TelegramService {
                   one_time_keyboard: true
                 }
               });
+              console.log(`Welcome image sent successfully to ${user.firstName || user.username}`);
             } catch (photoError) {
-              console.error('Failed to send welcome image, sending text message instead:', photoError);
+              console.error(`Failed to send welcome image to ${user.firstName || user.username}:`, photoError);
+              console.log('Falling back to text message...');
               // Fallback to text message if image fails
               await this.bot?.sendMessage(chatId, `${title}\n\n${description}`, {
                 reply_markup: {
@@ -124,6 +127,7 @@ class TelegramService {
             }
           } else {
             // Send text message if no image
+            console.log(`Sending text welcome message to user ${user.firstName || user.username} (no image set)`);
             const welcomeMessage = `${title}\n\n${description}`;
             
             const options = {
@@ -137,6 +141,7 @@ class TelegramService {
             };
 
             await this.bot?.sendMessage(chatId, welcomeMessage, options);
+            console.log(`Text welcome message sent successfully to ${user.firstName || user.username}`);
           }
         } else {
           // Update user activity
