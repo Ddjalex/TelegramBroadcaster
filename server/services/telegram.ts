@@ -99,7 +99,12 @@ class TelegramService {
           // Send welcome image first if provided
           if (imageUrl && imageUrl.trim()) {
             try {
-              console.log(`Sending welcome image to user ${user.firstName || user.username}: ${imageUrl}`);
+              console.log(`Attempting to send welcome image to user ${user.firstName || user.username || 'Unknown'}`);
+              console.log(`Image URL: ${imageUrl}`);
+              console.log(`Title: ${title}`);
+              console.log(`Description: ${description}`);
+              console.log(`Button Text: ${buttonText}`);
+              
               await this.bot?.sendPhoto(chatId, imageUrl, {
                 caption: `${title}\n\n${description}`,
                 reply_markup: {
@@ -110,10 +115,12 @@ class TelegramService {
                   one_time_keyboard: true
                 }
               });
-              console.log(`Welcome image sent successfully to ${user.firstName || user.username}`);
+              console.log(`✅ Welcome image sent successfully to ${user.firstName || user.username || 'Unknown'}`);
             } catch (photoError) {
-              console.error(`Failed to send welcome image to ${user.firstName || user.username}:`, photoError);
-              console.log('Falling back to text message...');
+              console.error(`❌ Failed to send welcome image to ${user.firstName || user.username || 'Unknown'}:`);
+              console.error('Error details:', photoError);
+              console.log('🔄 Falling back to text message...');
+              
               // Fallback to text message if image fails
               await this.bot?.sendMessage(chatId, `${title}\n\n${description}`, {
                 reply_markup: {
@@ -124,6 +131,7 @@ class TelegramService {
                   one_time_keyboard: true
                 }
               });
+              console.log(`✅ Text fallback message sent to ${user.firstName || user.username || 'Unknown'}`);
             }
           } else {
             // Send text message if no image
@@ -364,6 +372,22 @@ For questions or support, contact our administrators.
         lastActivity: null,
       };
     }
+  }
+
+  // Send a simple text message
+  async sendMessage(chatId: number | string, message: string) {
+    if (!this.bot) {
+      throw new Error('Bot not initialized');
+    }
+    return await this.bot.sendMessage(chatId, message);
+  }
+
+  // Send a photo with caption
+  async sendPhoto(chatId: number | string, photoUrl: string, caption?: string) {
+    if (!this.bot) {
+      throw new Error('Bot not initialized');
+    }
+    return await this.bot.sendPhoto(chatId, photoUrl, { caption });
   }
 
   // Handle webhook updates (for production)

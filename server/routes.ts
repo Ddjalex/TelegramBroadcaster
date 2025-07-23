@@ -454,6 +454,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test welcome message endpoint
+  app.post("/api/test/welcome-message", async (req, res) => {
+    try {
+      const { chatId } = req.body;
+      if (!chatId) {
+        return res.status(400).json({ error: 'Chat ID is required for testing' });
+      }
+
+      // Get current welcome message settings
+      const titleSetting = await storage.getBotSetting('welcome_title');
+      const descriptionSetting = await storage.getBotSetting('welcome_description');
+      const buttonTextSetting = await storage.getBotSetting('welcome_button_text');
+      const imageUrlSetting = await storage.getBotSetting('welcome_image_url');
+
+      const title = titleSetting?.value || 'Test Welcome Message';
+      const description = descriptionSetting?.value || 'This is a test of the welcome message functionality.';
+      const buttonText = buttonTextSetting?.value || 'TEST';
+      const imageUrl = imageUrlSetting?.value || '';
+
+      console.log('Testing welcome message with settings:', { title, description, buttonText, imageUrl });
+
+      // Test sending the welcome message
+      if (imageUrl && imageUrl.trim()) {
+        try {
+          await telegramService.sendMessage(chatId, 'Testing image functionality...');
+          const result = await telegramService.sendPhoto(chatId, imageUrl, `${title}\n\n${description}`);
+          res.json({ 
+            success: true, 
+            message: 'Test image sent successfully',
+            settings: { title, description, buttonText, imageUrl },
+            result
+          });
+        } catch (photoError: any) {
+          console.error('Test image failed:', photoError);
+          await telegramService.sendMessage(chatId, `${title}\n\n${description}`);
+          res.json({ 
+            success: false, 
+            message: 'Image failed, text sent instead',
+            error: photoError.message || 'Unknown error',
+            settings: { title, description, buttonText, imageUrl }
+          });
+        }
+      } else {
+        await telegramService.sendMessage(chatId, `${title}\n\n${description}`);
+        res.json({ 
+          success: true, 
+          message: 'Text message sent (no image configured)',
+          settings: { title, description, buttonText, imageUrl }
+        });
+      }
+    } catch (error: any) {
+      console.error('Error testing welcome message:', error);
+      res.status(500).json({ error: 'Failed to test welcome message', details: error.message || 'Unknown error' });
+    }
+  });
+
   // Generic settings routes (must come after specific routes)
   app.get("/api/settings/:key", async (req, res) => {
     try {
