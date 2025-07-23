@@ -132,9 +132,9 @@ export default function Settings() {
               Customize the welcome message users see when they first start the bot
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="max-h-[80vh] overflow-y-auto">
             <Form {...welcomeForm}>
-              <form onSubmit={welcomeForm.handleSubmit(handleWelcomeMessageSave)} className="space-y-4">
+              <form onSubmit={welcomeForm.handleSubmit(handleWelcomeMessageSave)} className="space-y-4 pb-20">
                 <FormField
                   control={welcomeForm.control}
                   name="title"
@@ -363,13 +363,16 @@ export default function Settings() {
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={welcomeMessageMutation.isPending}
-                  className="w-full"
-                >
-                  {welcomeMessageMutation.isPending ? "Saving..." : "Save Welcome Message"}
-                </Button>
+                <div className="sticky bottom-0 bg-white dark:bg-gray-900 p-4 border-t mt-6 -mx-6 -mb-6">
+                  <Button
+                    type="submit"
+                    disabled={welcomeMessageMutation.isPending}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {welcomeMessageMutation.isPending ? "Saving..." : "Save Welcome Message"}
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>

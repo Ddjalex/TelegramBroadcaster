@@ -184,11 +184,14 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
                   <FormLabel>Message</FormLabel>
                   <FormControl>
                     <Textarea
-                      ref={setTextareaRef}
                       placeholder="Type your broadcast message here..."
                       className="resize-none"
                       rows={4}
                       {...field}
+                      ref={(el) => {
+                        field.ref?.(el);
+                        setTextareaRef(el);
+                      }}
                       onChange={(e) => {
                         field.onChange(e);
                         setMessageLength(e.target.value.length);
