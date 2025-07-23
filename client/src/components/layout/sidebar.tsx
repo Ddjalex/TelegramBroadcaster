@@ -91,7 +91,7 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
       {/* Admin Info */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between mb-3">
-          <ConnectionStatus isConnected={isWebSocketConnected} />
+          <ConnectionStatus />
         </div>
         <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <RealTimeClock />
@@ -104,7 +104,7 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {isWebSocketConnected ? 'Connected' : 'Disconnected'}
+              Online
             </p>
           </div>
           <Button 
