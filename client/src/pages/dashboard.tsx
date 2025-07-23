@@ -124,7 +124,9 @@ export default function Dashboard() {
       {/* Dashboard Content */}
       <div className="p-8 space-y-8">
         {/* Stats Cards */}
-        {stats && 'totalUsers' in stats && <StatsCards stats={stats as any} />}
+        {stats && typeof stats === 'object' && stats !== null && 'totalUsers' in stats ? (
+          <StatsCards stats={stats as any} />
+        ) : null}
 
         {/* Main Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

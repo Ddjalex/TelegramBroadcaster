@@ -193,7 +193,10 @@ export default function Users() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <UserActions user={user} />
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <span className="sr-only">Actions</span>
+                            •••
+                          </Button>
                         </TableCell>
                       </TableRow>
                     );
