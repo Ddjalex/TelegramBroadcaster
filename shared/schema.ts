@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   username: text("username"),
   firstName: text("first_name"),
   lastName: text("last_name"),
+  phoneNumber: text("phone_number"),
   isActive: boolean("is_active").default(true),
   joinedAt: timestamp("joined_at").defaultNow(),
   lastActiveAt: timestamp("last_active_at").defaultNow(),

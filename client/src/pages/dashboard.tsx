@@ -206,62 +206,56 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Recent Users */}
+            {/* Live User Activity */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold">Recent Users</CardTitle>
-                  <Button variant="link" size="sm" className="telegram-text">View All</Button>
+                  <CardTitle className="text-lg font-semibold">Live Activity</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-600 dark:text-green-400">Live</span>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src="https://images.unsplash.com/photo-1494790108755-2616b612b3d4?w=40&h=40&fit=crop&crop=face" />
-                      <AvatarFallback>SJ</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">Sarah Johnson</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Joined 2 hours ago</p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">📱</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Phone Registration</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Users now asked for phone numbers</p>
+                      </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <Badge className="bg-blue-500 text-white">Active</Badge>
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" />
-                      <AvatarFallback>MC</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">Mike Chen</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Joined 5 hours ago</p>
+
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">🤖</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Bot Online</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Ready to receive users</p>
+                      </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <Badge className="bg-green-500 text-white">Online</Badge>
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face" />
-                      <AvatarFallback>ED</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">Emily Davis</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Joined 1 day ago</p>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">📊</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Real-time Updates</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Dashboard refreshes automatically</p>
+                      </div>
                     </div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" />
-                      <AvatarFallback>AR</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">Alex Rodriguez</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Joined 2 days ago</p>
-                    </div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <Badge variant="secondary">Auto</Badge>
                   </div>
                 </div>
               </CardContent>

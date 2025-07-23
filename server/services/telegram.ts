@@ -57,23 +57,80 @@ class TelegramService {
             firstName: msg.from?.first_name || '',
             lastName: msg.from?.last_name || '',
           });
+
+          const welcomeMessage = `
+🤖 Welcome to our Broadcast Bot!
+
+To complete your registration and receive real-time notifications, please share your phone number.
+
+Click the button below or send your phone number manually.
+          `;
+
+          const options = {
+            reply_markup: {
+              keyboard: [
+                [{ text: '📱 Share Phone Number', request_contact: true }]
+              ],
+              resize_keyboard: true,
+              one_time_keyboard: true
+            }
+          };
+
+          await this.bot.sendMessage(chatId, welcomeMessage, options);
         } else {
           // Update user activity
           await storage.updateUserActivity(telegramId);
-        }
+          
+          const welcomeBackMessage = `
+👋 Welcome back!
 
-        const welcomeMessage = `
-🤖 Welcome to our Broadcast Bot!
-
-You've successfully registered to receive updates and announcements.
+You're already registered to receive updates and announcements.
 
 Use /help to see available commands.
-        `;
+          `;
 
-        await this.bot.sendMessage(chatId, welcomeMessage);
+          await this.bot.sendMessage(chatId, welcomeBackMessage);
+        }
       } catch (error) {
         console.error('Error handling /start command:', error);
         await this.bot.sendMessage(chatId, 'Sorry, there was an error registering you. Please try again later.');
+      }
+    });
+
+    // Handle contact sharing
+    this.bot.on('contact', async (msg) => {
+      const chatId = msg.chat.id;
+      const telegramId = msg.from?.id.toString();
+      const contact = msg.contact;
+      
+      if (!telegramId || !contact) return;
+
+      try {
+        // Update user with phone number
+        await storage.updateUserPhone(telegramId, contact.phone_number);
+        
+        const confirmMessage = `
+✅ Thank you! Your phone number has been saved.
+
+You're now fully registered to receive:
+- Important announcements
+- Real-time notifications
+- Community updates
+
+Use /help to see all available commands.
+        `;
+
+        // Remove the keyboard
+        const options = {
+          reply_markup: {
+            remove_keyboard: true
+          }
+        };
+
+        await this.bot.sendMessage(chatId, confirmMessage, options);
+      } catch (error) {
+        console.error('Error saving contact:', error);
+        await this.bot.sendMessage(chatId, 'Sorry, there was an error saving your phone number. Please try again.');
       }
     });
 

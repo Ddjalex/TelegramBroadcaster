@@ -21,6 +21,7 @@ export interface IStorage {
   getUserByTelegramId(telegramId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserActivity(telegramId: string): Promise<void>;
+  updateUserPhone(telegramId: string, phoneNumber: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
   getUserStats(): Promise<{
     total: number;
@@ -74,6 +75,13 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ lastActiveAt: new Date() })
+      .where(eq(users.telegramId, telegramId));
+  }
+
+  async updateUserPhone(telegramId: string, phoneNumber: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ phoneNumber, lastActiveAt: new Date() })
       .where(eq(users.telegramId, telegramId));
   }
 

@@ -125,6 +125,7 @@ export default function Users() {
                   <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead>Username</TableHead>
+                    <TableHead>Phone Number</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead>Last Active</TableHead>
@@ -160,9 +161,21 @@ export default function Users() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={isActive ? "default" : "secondary"}>
-                            {isActive ? "Active" : "Inactive"}
-                          </Badge>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {(user as any).phoneNumber || 'Not provided'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant={isActive ? "default" : "secondary"}>
+                              {isActive ? "Active" : "Inactive"}
+                            </Badge>
+                            {(user as any).phoneNumber && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                Verified
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <span className="text-sm text-gray-600 dark:text-gray-400">
