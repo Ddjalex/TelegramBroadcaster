@@ -26,6 +26,7 @@ interface ComposeFormProps {
 
 export function ComposeForm({ onPreview }: ComposeFormProps) {
   const [messageLength, setMessageLength] = useState(0);
+  const [textareaRef, setTextareaRef] = useState<HTMLTextAreaElement | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -101,6 +102,51 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
     }
   };
 
+  // Text formatting functions
+  const insertTextAtCursor = (startText: string, endText: string = '') => {
+    if (!textareaRef) return;
+    
+    const start = textareaRef.selectionStart;
+    const end = textareaRef.selectionEnd;
+    const currentMessage = form.getValues("message");
+    const selectedText = currentMessage.substring(start, end);
+    
+    let newText;
+    if (selectedText) {
+      // Wrap selected text
+      newText = currentMessage.substring(0, start) + startText + selectedText + endText + currentMessage.substring(end);
+    } else {
+      // Insert at cursor position
+      newText = currentMessage.substring(0, start) + startText + endText + currentMessage.substring(end);
+    }
+    
+    form.setValue("message", newText);
+    setMessageLength(newText.length);
+    
+    // Set cursor position after inserted text
+    setTimeout(() => {
+      const newCursorPos = selectedText ? start + startText.length + selectedText.length + endText.length : start + startText.length;
+      textareaRef.focus();
+      textareaRef.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
+  const handleBold = () => insertTextAtCursor('**', '**');
+  const handleItalic = () => insertTextAtCursor('_', '_');
+  const handleLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) {
+      const linkText = prompt('Enter link text (optional):') || url;
+      insertTextAtCursor(`[${linkText}](${url})`);
+    }
+  };
+  
+  const handleEmoji = () => {
+    const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀', '👁️', '👅', '👄', '💋', '🩸'];
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    insertTextAtCursor(randomEmoji);
+  };
+
   const watchMessage = form.watch("message");
   
   // Update message length when message changes
@@ -138,6 +184,7 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
                   <FormLabel>Message</FormLabel>
                   <FormControl>
                     <Textarea
+                      ref={setTextareaRef}
                       placeholder="Type your broadcast message here..."
                       className="resize-none"
                       rows={4}
@@ -155,16 +202,44 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button type="button" variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={handleBold}
+                  title="Bold (**text**)"
+                >
                   <Bold size={16} />
                 </Button>
-                <Button type="button" variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={handleItalic}
+                  title="Italic (_text_)"
+                >
                   <Italic size={16} />
                 </Button>
-                <Button type="button" variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={handleLink}
+                  title="Insert Link"
+                >
                   <Link size={16} />
                 </Button>
-                <Button type="button" variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={handleEmoji}
+                  title="Add Random Emoji"
+                >
                   <Smile size={16} />
                 </Button>
                 <span className="text-sm text-gray-500">{messageLength}/4096</span>
