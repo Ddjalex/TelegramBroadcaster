@@ -99,8 +99,11 @@ export default function Users() {
   };
 
   const handleBlockUser = (userId: number) => {
-    // Block user by setting isActive to false
-    muteUserMutation.mutate({ userId, isActive: false });
+    const user = users?.find(u => u.id === userId);
+    const isCurrentlyActive = user?.isActive;
+    
+    // Toggle block status - if user is active, block them; if blocked, unblock them
+    muteUserMutation.mutate({ userId, isActive: !isCurrentlyActive });
   };
 
   const handleRemoveUser = (userId: number) => {
@@ -320,7 +323,7 @@ export default function Users() {
                                 onClick={() => handleBlockUser(user.id)}
                                 className="text-orange-600"
                               >
-                                Block User
+                                {user.isActive ? 'Block User' : 'Unblock User'}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleRemoveUser(user.id)}
