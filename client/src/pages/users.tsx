@@ -312,7 +312,7 @@ export default function Users() {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => handleMuteUser(user.id, user.isActive)}
+                                onClick={() => handleMuteUser(user.id, Boolean(user.isActive))}
                               >
                                 {user.isActive ? 'Mute User' : 'Unmute User'}
                               </DropdownMenuItem>
