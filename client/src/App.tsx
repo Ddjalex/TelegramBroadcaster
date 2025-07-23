@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import Dashboard from "@/pages/dashboard";
 import Compose from "@/pages/compose";
 import Users from "@/pages/users";
@@ -16,6 +17,7 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isConnected } = useWebSocket();
 
   if (isLoading) {
     return (
@@ -31,7 +33,7 @@ function Router() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
-      <Sidebar />
+      <Sidebar isWebSocketConnected={isConnected} />
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/compose" component={Compose} />

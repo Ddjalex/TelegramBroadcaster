@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { ConnectionStatus } from "@/components/ui/connection-status";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -25,7 +26,11 @@ const navigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isWebSocketConnected?: boolean;
+}
+
+export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
   const [location] = useLocation();
   const { logout } = useAuth();
 
@@ -84,6 +89,9 @@ export function Sidebar() {
 
       {/* Admin Info */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between mb-3">
+          <ConnectionStatus isConnected={isWebSocketConnected} />
+        </div>
         <div className="flex items-center space-x-3">
           <Avatar className="w-10 h-10">
             <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=40&h=40" />

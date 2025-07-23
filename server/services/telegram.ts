@@ -2,6 +2,13 @@ import TelegramBot from 'node-telegram-bot-api';
 import { storage } from '../storage';
 import type { User } from '@shared/schema';
 
+// Import WebSocket broadcast function
+let broadcastToClients: ((data: any) => void) | null = null;
+
+export function setBroadcastFunction(fn: (data: any) => void) {
+  broadcastToClients = fn;
+}
+
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || '';
 
 if (!BOT_TOKEN) {
@@ -57,6 +64,17 @@ class TelegramService {
             firstName: msg.from?.first_name || '',
             lastName: msg.from?.last_name || '',
           });
+
+          // Send real-time notification about new user
+          if (broadcastToClients) {
+            broadcastToClients({
+              type: 'NEW_USER_REGISTERED',
+              data: { 
+                user,
+                message: `New user registered: ${user.firstName || user.username || 'Unknown'}`
+              }
+            });
+          }
 
           const welcomeMessage = `
 🤖 Welcome to our Broadcast Bot!
@@ -133,6 +151,18 @@ Waiting for important announcements.
       try {
         // Update user with phone number
         await storage.updateUserPhone(telegramId, contact.phone_number);
+        
+        // Send real-time notification about phone number update
+        if (broadcastToClients) {
+          broadcastToClients({
+            type: 'USER_PHONE_UPDATED',
+            data: { 
+              telegramId,
+              phoneNumber: contact.phone_number,
+              message: `User updated phone number: ${contact.phone_number}`
+            }
+          });
+        }
         
         const confirmMessage = `
 ✅ Thank you! Your phone number has been saved.

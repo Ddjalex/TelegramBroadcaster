@@ -1,11 +1,28 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { telegramService } from "./services/telegram";
+import { telegramService, setBroadcastFunction } from "./services/telegram";
 import { insertBroadcastSchema, insertScheduledMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
+// WebSocket connection management
+let wss: WebSocketServer;
+const clients = new Set<WebSocket>();
+
+function broadcastToClients(data: any) {
+  const message = JSON.stringify(data);
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up broadcast function for Telegram service
+  setBroadcastFunction(broadcastToClients);
+  
   // Initialize Telegram service
   try {
     await telegramService.initialize();
@@ -82,6 +99,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       await storage.updateUserStatus(id, isActive);
+      
+      // Send real-time notification
+      broadcastToClients({
+        type: 'USER_STATUS_UPDATED',
+        data: { userId: id, isActive, message: isActive ? 'User activated' : 'User deactivated' }
+      });
+      
       res.json({ message: isActive ? 'User activated' : 'User deactivated' });
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -93,6 +117,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       await storage.removeUser(id);
+      
+      // Send real-time notification
+      broadcastToClients({
+        type: 'USER_REMOVED',
+        data: { userId: id, message: 'User removed successfully' }
+      });
+      
       res.json({ message: 'User removed successfully' });
     } catch (error) {
       console.error('Error removing user:', error);
@@ -234,6 +265,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Update broadcast stats
           await storage.updateBroadcastStats(id, results.successful, results.failed);
           await storage.updateBroadcastStatus(id, 'sent');
+          
+          // Send real-time notification about broadcast completion
+          broadcastToClients({
+            type: 'BROADCAST_COMPLETED',
+            data: { 
+              broadcastId: id, 
+              successful: results.successful, 
+              failed: results.failed,
+              message: `Broadcast completed: ${results.successful} sent, ${results.failed} failed`
+            }
+          });
           
           console.log(`Broadcast ${id} completed: ${results.successful} successful, ${results.failed} failed`);
         } catch (error) {
@@ -380,5 +422,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Setup WebSocket server
+  wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws) => {
+    clients.add(ws);
+    console.log('New WebSocket client connected');
+    
+    ws.on('close', () => {
+      clients.delete(ws);
+      console.log('WebSocket client disconnected');
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      clients.delete(ws);
+    });
+  });
+  
   return httpServer;
 }
