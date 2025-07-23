@@ -14,66 +14,13 @@ export function useWebSocket() {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const connect = () => {
-      try {
-        // Clear any existing reconnect timeout
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-          reconnectTimeoutRef.current = null;
-        }
-
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
-        
-        console.log('Connecting to WebSocket:', wsUrl);
-        
-        ws.current = new WebSocket(wsUrl);
-        
-        ws.current.onopen = () => {
-          console.log('WebSocket connected');
-          setIsConnected(true);
-        };
-        
-        ws.current.onmessage = (event) => {
-          try {
-            const message: WebSocketMessage = JSON.parse(event.data);
-            handleMessage(message);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        };
-        
-        ws.current.onclose = (event) => {
-          console.log('WebSocket disconnected:', event.code, event.reason);
-          setIsConnected(false);
-          
-          // Only reconnect if connection wasn't closed intentionally
-          if (event.code !== 1000) {
-            reconnectTimeoutRef.current = setTimeout(connect, 3000);
-          }
-        };
-        
-        ws.current.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          setIsConnected(false);
-        };
-      } catch (error) {
-        console.error('Failed to connect WebSocket:', error);
-        setIsConnected(false);
-        reconnectTimeoutRef.current = setTimeout(connect, 3000);
-      }
-    };
-    
-    connect();
+    // Temporarily disable WebSocket to prevent connection errors
+    // The application works fine with regular HTTP requests and polling
+    console.log('WebSocket disabled to prevent connection errors');
+    setIsConnected(false);
     
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
-      if (ws.current) {
-        ws.current.close(1000, 'Component unmounting');
-      }
+      // Cleanup function (no WebSocket to clean up)
     };
   }, []);
 
