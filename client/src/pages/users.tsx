@@ -43,7 +43,8 @@ export default function Users() {
         description: isActive ? "User muted successfully" : "User unmuted successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error updating user status:', error);
       toast({
         title: "Error",
         description: "Failed to update user status",
@@ -66,7 +67,8 @@ export default function Users() {
         description: "User removed successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error removing user:', error);
       toast({
         title: "Error",
         description: "Failed to remove user",
@@ -80,8 +82,8 @@ export default function Users() {
   };
 
   const handleBlockUser = (userId: number) => {
-    // Block is same as mute in this context
-    muteUserMutation.mutate({ userId, isActive: true });
+    // Block user by setting isActive to false
+    muteUserMutation.mutate({ userId, isActive: false });
   };
 
   const handleRemoveUser = (userId: number) => {
