@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -26,6 +27,7 @@ const navigation = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  const { logout } = useAuth();
 
   const { data: userStats } = useQuery({
     queryKey: ["/api/users/stats"],
@@ -91,7 +93,12 @@ export function Sidebar() {
             <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Online</p>
           </div>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-gray-400 hover:text-gray-600"
+            onClick={logout}
+          >
             <LogOut size={16} />
           </Button>
         </div>

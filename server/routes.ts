@@ -13,6 +13,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize Telegram service:', error);
   }
 
+  // Admin authentication (simple password check)
+  app.post("/api/auth/login", async (req, res) => {
+    const { username, password } = req.body;
+    
+    // Simple admin credentials (in production, use proper authentication)
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    
+    if (username === adminUsername && password === adminPassword) {
+      res.json({ success: true, message: 'Login successful' });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  });
+
   // Telegram webhook endpoint
   app.post("/api/telegram/webhook", async (req, res) => {
     try {

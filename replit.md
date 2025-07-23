@@ -8,6 +8,16 @@ This is a full-stack Telegram broadcast bot application with an admin dashboard.
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### July 23, 2025
+- Added admin authentication system with login page
+- Implemented simple username/password authentication (admin/admin123 default)
+- Fixed Telegram bot to use contact button instead of inline keyboard
+- Simplified phone sharing confirmation message to "Thank you! Your phone number has been saved. Waiting for important announcements."
+- Added logout functionality to admin dashboard sidebar
+- Removed callback query handlers for cleaner bot interaction
+
 ## System Architecture
 
 ### Frontend Architecture

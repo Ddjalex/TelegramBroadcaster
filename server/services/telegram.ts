@@ -68,9 +68,11 @@ Click the button below to share your contact.
 
           const options = {
             reply_markup: {
-              inline_keyboard: [
-                [{ text: '📱 Share Phone Number', callback_data: 'request_contact' }]
-              ]
+              keyboard: [
+                [{ text: '📱 Share My Contact', request_contact: true }]
+              ],
+              resize_keyboard: true,
+              one_time_keyboard: true
             }
           };
 
@@ -91,23 +93,27 @@ Click the button below to complete your profile.
 
             const options = {
               reply_markup: {
-                inline_keyboard: [
-                  [{ text: '📱 Share Phone Number', callback_data: 'request_contact' }]
-                ]
+                keyboard: [
+                  [{ text: '📱 Share My Contact', request_contact: true }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
               }
             };
 
             await this.bot.sendMessage(chatId, phoneRequestMessage, options);
           } else {
             const welcomeBackMessage = `
-👋 Welcome back!
+✅ Thank you! Your phone number has been saved.
 
-You're registered and verified to receive updates and announcements.
-
-Use /help to see available commands.
+Waiting for important announcements.
             `;
 
-            await this.bot.sendMessage(chatId, welcomeBackMessage);
+            await this.bot.sendMessage(chatId, welcomeBackMessage, {
+              reply_markup: {
+                remove_keyboard: true
+              }
+            });
           }
         }
       } catch (error) {
@@ -131,64 +137,21 @@ Use /help to see available commands.
         const confirmMessage = `
 ✅ Thank you! Your phone number has been saved.
 
-You're now fully verified to receive:
-- Important announcements  
-- Real-time notifications
-- Community updates
-- Priority support
-
-Use /help to see all available commands.
+Waiting for important announcements.
         `;
 
-        await this.bot.sendMessage(chatId, confirmMessage);
+        await this.bot.sendMessage(chatId, confirmMessage, {
+          reply_markup: {
+            remove_keyboard: true
+          }
+        });
       } catch (error) {
         console.error('Error saving contact:', error);
         await this.bot.sendMessage(chatId, 'Sorry, there was an error saving your phone number. Please try again.');
       }
     });
 
-    // Handle inline button callbacks
-    this.bot.on('callback_query', async (callbackQuery) => {
-      const chatId = callbackQuery.message?.chat.id;
-      const telegramId = callbackQuery.from.id.toString();
-      const data = callbackQuery.data;
 
-      if (!chatId || !data) return;
-
-      try {
-        if (data === 'request_contact') {
-          // Send a message with contact request keyboard
-          const contactMessage = `
-📱 Please share your contact information by clicking the button below.
-
-This will allow us to send you important updates and notifications.
-          `;
-
-          const contactOptions = {
-            reply_markup: {
-              keyboard: [
-                [{ text: '📱 Share My Contact', request_contact: true }]
-              ],
-              resize_keyboard: true,
-              one_time_keyboard: true
-            }
-          };
-
-          await this.bot.sendMessage(chatId, contactMessage, contactOptions);
-          
-          // Answer the callback query to remove the loading state
-          await this.bot.answerCallbackQuery(callbackQuery.id, {
-            text: 'Please use the button below to share your contact.'
-          });
-        }
-      } catch (error) {
-        console.error('Error handling callback query:', error);
-        await this.bot.answerCallbackQuery(callbackQuery.id, {
-          text: 'Something went wrong. Please try again.',
-          show_alert: true
-        });
-      }
-    });
 
     // Handle /help command
     this.bot.onText(/\/help/, async (msg) => {
