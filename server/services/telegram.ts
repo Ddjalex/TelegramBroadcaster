@@ -63,16 +63,14 @@ class TelegramService {
 
 To complete your registration and receive real-time notifications, please share your phone number.
 
-Click the button below or send your phone number manually.
+Click the button below to share your contact.
           `;
 
           const options = {
             reply_markup: {
-              keyboard: [
-                [{ text: '📱 Share Phone Number', request_contact: true }]
-              ],
-              resize_keyboard: true,
-              one_time_keyboard: true
+              inline_keyboard: [
+                [{ text: '📱 Share Phone Number', callback_data: 'request_contact' }]
+              ]
             }
           };
 
@@ -93,11 +91,9 @@ Click the button below to complete your profile.
 
             const options = {
               reply_markup: {
-                keyboard: [
-                  [{ text: '📱 Share Phone Number', request_contact: true }]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
+                inline_keyboard: [
+                  [{ text: '📱 Share Phone Number', callback_data: 'request_contact' }]
+                ]
               }
             };
 
@@ -144,17 +140,53 @@ You're now fully verified to receive:
 Use /help to see all available commands.
         `;
 
-        // Remove the keyboard
-        const options = {
-          reply_markup: {
-            remove_keyboard: true
-          }
-        };
-
-        await this.bot.sendMessage(chatId, confirmMessage, options);
+        await this.bot.sendMessage(chatId, confirmMessage);
       } catch (error) {
         console.error('Error saving contact:', error);
         await this.bot.sendMessage(chatId, 'Sorry, there was an error saving your phone number. Please try again.');
+      }
+    });
+
+    // Handle inline button callbacks
+    this.bot.on('callback_query', async (callbackQuery) => {
+      const chatId = callbackQuery.message?.chat.id;
+      const telegramId = callbackQuery.from.id.toString();
+      const data = callbackQuery.data;
+
+      if (!chatId || !data) return;
+
+      try {
+        if (data === 'request_contact') {
+          // Send a message with contact request keyboard
+          const contactMessage = `
+📱 Please share your contact information by clicking the button below.
+
+This will allow us to send you important updates and notifications.
+          `;
+
+          const contactOptions = {
+            reply_markup: {
+              keyboard: [
+                [{ text: '📱 Share My Contact', request_contact: true }]
+              ],
+              resize_keyboard: true,
+              one_time_keyboard: true
+            }
+          };
+
+          await this.bot.sendMessage(chatId, contactMessage, contactOptions);
+          
+          // Answer the callback query to remove the loading state
+          await this.bot.answerCallbackQuery(callbackQuery.id, {
+            text: 'Please use the button below to share your contact.'
+          });
+        }
+      } catch (error) {
+        console.error('Error handling callback query:', error);
+        await this.bot.answerCallbackQuery(callbackQuery.id, {
+          text: 'Something went wrong. Please try again.',
+          show_alert: true
+        });
       }
     });
 
