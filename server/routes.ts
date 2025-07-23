@@ -406,7 +406,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Settings
+  // Welcome message settings routes (must come before generic settings routes)
+  app.get("/api/settings/welcome", async (req, res) => {
+    try {
+      const titleSetting = await storage.getBotSetting('welcome_title');
+      const descriptionSetting = await storage.getBotSetting('welcome_description');
+      const buttonTextSetting = await storage.getBotSetting('welcome_button_text');
+      const imageUrlSetting = await storage.getBotSetting('welcome_image_url');
+
+      const settings = {
+        title: titleSetting?.value || 'Welcome to our Broadcast Bot!',
+        description: descriptionSetting?.value || 'Get real-time notifications and important updates directly to your phone. Click START to begin your journey with us.',
+        buttonText: buttonTextSetting?.value || 'START',
+        imageUrl: imageUrlSetting?.value || '',
+      };
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching welcome settings:', error);
+      res.status(500).json({ error: 'Failed to fetch welcome settings' });
+    }
+  });
+
+  app.post("/api/settings/welcome", async (req, res) => {
+    try {
+      const result = welcomeMessageSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: 'Validation error',
+          details: result.error.flatten().fieldErrors
+        });
+      }
+
+      const { title, description, buttonText, imageUrl } = result.data;
+
+      // Save each setting individually
+      await Promise.all([
+        storage.setBotSetting({ key: 'welcome_title', value: title }),
+        storage.setBotSetting({ key: 'welcome_description', value: description }),
+        storage.setBotSetting({ key: 'welcome_button_text', value: buttonText }),
+        storage.setBotSetting({ key: 'welcome_image_url', value: imageUrl || '' }),
+      ]);
+
+      res.json({ message: 'Welcome message settings updated successfully' });
+    } catch (error) {
+      console.error('Error updating welcome settings:', error);
+      res.status(500).json({ error: 'Failed to update welcome settings' });
+    }
+  });
+
+  // Generic settings routes (must come after specific routes)
   app.get("/api/settings/:key", async (req, res) => {
     try {
       const setting = await storage.getBotSetting(req.params.key);
@@ -528,53 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Welcome message settings routes
-  app.get("/api/settings/welcome", async (req, res) => {
-    try {
-      const titleSetting = await storage.getBotSetting('welcome_title');
-      const descriptionSetting = await storage.getBotSetting('welcome_description');
-      const buttonTextSetting = await storage.getBotSetting('welcome_button_text');
-      const imageUrlSetting = await storage.getBotSetting('welcome_image_url');
 
-      const settings = {
-        title: titleSetting?.value || 'Welcome to our Broadcast Bot!',
-        description: descriptionSetting?.value || 'Get real-time notifications and important updates directly to your phone. Click START to begin your journey with us.',
-        buttonText: buttonTextSetting?.value || 'START',
-        imageUrl: imageUrlSetting?.value || '',
-      };
-      res.json(settings);
-    } catch (error) {
-      console.error('Error fetching welcome settings:', error);
-      res.status(500).json({ error: 'Failed to fetch welcome settings' });
-    }
-  });
-
-  app.post("/api/settings/welcome", async (req, res) => {
-    try {
-      const result = welcomeMessageSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ 
-          error: 'Validation error',
-          details: result.error.flatten().fieldErrors
-        });
-      }
-
-      const { title, description, buttonText, imageUrl } = result.data;
-
-      // Save each setting individually
-      await Promise.all([
-        storage.setBotSetting({ key: 'welcome_title', value: title }),
-        storage.setBotSetting({ key: 'welcome_description', value: description }),
-        storage.setBotSetting({ key: 'welcome_button_text', value: buttonText }),
-        storage.setBotSetting({ key: 'welcome_image_url', value: imageUrl || '' }),
-      ]);
-
-      res.json({ message: 'Welcome message settings updated successfully' });
-    } catch (error) {
-      console.error('Error updating welcome settings:', error);
-      res.status(500).json({ error: 'Failed to update welcome settings' });
-    }
-  });
 
   const httpServer = createServer(app);
   

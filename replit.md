@@ -52,6 +52,11 @@ Preferred communication style: Simple, everyday language.
   - Corrected Quick Broadcast functionality 
   - Fixed Welcome Message save button errors
   - Enhanced error handling and user feedback
+- **WELCOME MESSAGE CONNECTION FIX**: Fixed API routing issue preventing welcome message settings from connecting to Telegram bot
+  - Reordered API routes to prevent generic settings endpoint from intercepting welcome-specific requests
+  - Admin dashboard welcome message settings now properly saved and retrieved
+  - Telegram bot now correctly uses custom welcome messages set in admin dashboard
+  - Tested and verified complete connection between admin interface and bot functionality
 
 ### Previous Updates
 - Added admin authentication system with login page
