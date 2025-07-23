@@ -353,7 +353,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/scheduled-messages", async (req, res) => {
     try {
-      const data = insertScheduledMessageSchema.parse(req.body);
+      // Convert scheduledFor string to Date object
+      const { scheduledFor, ...rest } = req.body;
+      const dataWithDate = {
+        ...rest,
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined
+      };
+      
+      const data = insertScheduledMessageSchema.parse(dataWithDate);
       const message = await storage.createScheduledMessage(data);
       res.status(201).json(message);
     } catch (error) {
@@ -384,7 +391,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/scheduled-messages/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updates = insertScheduledMessageSchema.partial().parse(req.body);
+      
+      // Convert scheduledFor string to Date object if present
+      const { scheduledFor, ...rest } = req.body;
+      const updatesWithDate = {
+        ...rest,
+        ...(scheduledFor && { scheduledFor: new Date(scheduledFor) })
+      };
+      
+      const updates = insertScheduledMessageSchema.partial().parse(updatesWithDate);
       
       await storage.updateScheduledMessage(id, updates);
       res.json({ message: 'Scheduled message updated successfully' });
