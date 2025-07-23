@@ -1,4 +1,5 @@
-import { useQuery, useMutation, queryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,22 +28,22 @@ export default function Users() {
     queryKey: ["/api/users/stats"],
   });
 
-  const toggleUserStatusMutation = useMutation({
+  const muteUserMutation = useMutation({
     mutationFn: async ({ userId, isActive }: { userId: number; isActive: boolean }) => {
       await apiRequest(`/api/users/${userId}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ isActive }),
+        body: JSON.stringify({ isActive: !isActive }),
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, { isActive }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       queryClient.invalidateQueries({ queryKey: ["/api/users/stats"] });
       toast({
         title: "Success",
-        description: "User status updated successfully",
+        description: isActive ? "User muted successfully" : "User unmuted successfully",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to update user status",
@@ -51,8 +52,42 @@ export default function Users() {
     },
   });
 
-  const handleToggleUserStatus = (userId: number, isActive: boolean) => {
-    toggleUserStatusMutation.mutate({ userId, isActive });
+  const removeUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      await apiRequest(`/api/users/${userId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users/stats"] });
+      toast({
+        title: "Success",
+        description: "User removed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove user",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleMuteUser = (userId: number, isActive: boolean) => {
+    muteUserMutation.mutate({ userId, isActive });
+  };
+
+  const handleBlockUser = (userId: number) => {
+    // Block is same as mute in this context
+    muteUserMutation.mutate({ userId, isActive: true });
+  };
+
+  const handleRemoveUser = (userId: number) => {
+    if (confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
+      removeUserMutation.mutate(userId);
+    }
   };
 
   const handleViewUser = (user: User) => {
@@ -251,16 +286,28 @@ export default function Users() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem
-                                onClick={() => handleToggleUserStatus(user.id, !user.isActive)}
-                              >
-                                {user.isActive ? 'Deactivate User' : 'Activate User'}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
                                 onClick={() => handleViewUser(user)}
                                 className="text-blue-600"
                               >
                                 View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleMuteUser(user.id, user.isActive)}
+                              >
+                                {user.isActive ? 'Mute User' : 'Unmute User'}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleBlockUser(user.id)}
+                                className="text-orange-600"
+                              >
+                                Block User
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleRemoveUser(user.id)}
+                                className="text-red-600"
+                              >
+                                Remove User
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
