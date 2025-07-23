@@ -8,9 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { changePasswordSchema, type ChangePassword } from "@shared/schema";
-import { KeyRound, Shield, Settings as SettingsIcon } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
+import { Textarea } from "@/components/ui/textarea";
+import { changePasswordSchema, welcomeMessageSchema, type ChangePassword, type WelcomeMessage } from "@shared/schema";
+import { KeyRound, Shield, Settings as SettingsIcon, MessageSquare } from "lucide-react";
+import * as React from "react";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -25,6 +28,40 @@ export default function Settings() {
       confirmPassword: "",
     },
   });
+
+  // Welcome message form
+  const welcomeForm = useForm<WelcomeMessage>({
+    resolver: zodResolver(welcomeMessageSchema),
+    defaultValues: {
+      title: "Welcome to our Broadcast Bot!",
+      description: "Get real-time notifications and important updates directly to your phone. Click START to begin your journey with us.",
+      buttonText: "START",
+      imageUrl: "",
+    },
+  });
+
+  // Fetch current welcome message settings
+  const { data: welcomeSettings } = useQuery({
+    queryKey: ['/api/settings/welcome'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/settings/welcome');
+        if (response.ok) {
+          return await response.json();
+        }
+        return null;
+      } catch (error) {
+        return null;
+      }
+    },
+  });
+
+  // Update form when data is loaded
+  React.useEffect(() => {
+    if (welcomeSettings) {
+      welcomeForm.reset(welcomeSettings);
+    }
+  }, [welcomeSettings, welcomeForm]);
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: ChangePassword) => {
@@ -46,8 +83,32 @@ export default function Settings() {
     },
   });
 
+  const welcomeMessageMutation = useMutation({
+    mutationFn: async (data: WelcomeMessage) => {
+      return await apiRequest("POST", "/api/settings/welcome", data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Welcome message updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/welcome'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update welcome message",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handlePasswordChange = (data: ChangePassword) => {
     changePasswordMutation.mutate(data);
+  };
+
+  const handleWelcomeMessageSave = (data: WelcomeMessage) => {
+    welcomeMessageMutation.mutate(data);
   };
 
   return (
@@ -58,6 +119,104 @@ export default function Settings() {
       </div>
 
       <div className="grid gap-6 max-w-2xl">
+        {/* Welcome Message Settings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              <CardTitle>Bot Welcome Message</CardTitle>
+            </div>
+            <CardDescription>
+              Customize the welcome message users see when they first start the bot
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...welcomeForm}>
+              <form onSubmit={welcomeForm.handleSubmit(handleWelcomeMessageSave)} className="space-y-4">
+                <FormField
+                  control={welcomeForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Welcome to our Broadcast Bot!"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={welcomeForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Get real-time notifications and important updates..."
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={welcomeForm.control}
+                  name="buttonText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Button Text</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="START"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={welcomeForm.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Welcome Image URL (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/welcome-image.jpg"
+                          {...field}
+                        />
+                      </FormControl>
+                      <div className="text-xs text-muted-foreground">
+                        Upload your image to any image hosting service and paste the URL here
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={welcomeMessageMutation.isPending}
+                  className="w-full"
+                >
+                  {welcomeMessageMutation.isPending ? "Saving..." : "Save Welcome Message"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
         {/* Security Settings */}
         <Card>
           <CardHeader>

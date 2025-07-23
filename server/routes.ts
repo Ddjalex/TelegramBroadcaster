@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { telegramService, setBroadcastFunction } from "./services/telegram";
-import { insertBroadcastSchema, insertScheduledMessageSchema, changePasswordSchema } from "@shared/schema";
+import { insertBroadcastSchema, insertScheduledMessageSchema, changePasswordSchema, welcomeMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
 // WebSocket connection management (temporarily disabled for Replit compatibility)
@@ -525,6 +525,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting scheduled message:', error);
       res.status(500).json({ error: 'Failed to delete scheduled message' });
+    }
+  });
+
+  // Welcome message settings routes
+  app.get("/api/settings/welcome", async (req, res) => {
+    try {
+      const titleSetting = await storage.getBotSetting('welcome_title');
+      const descriptionSetting = await storage.getBotSetting('welcome_description');
+      const buttonTextSetting = await storage.getBotSetting('welcome_button_text');
+      const imageUrlSetting = await storage.getBotSetting('welcome_image_url');
+
+      const settings = {
+        title: titleSetting?.value || 'Welcome to our Broadcast Bot!',
+        description: descriptionSetting?.value || 'Get real-time notifications and important updates directly to your phone. Click START to begin your journey with us.',
+        buttonText: buttonTextSetting?.value || 'START',
+        imageUrl: imageUrlSetting?.value || '',
+      };
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching welcome settings:', error);
+      res.status(500).json({ error: 'Failed to fetch welcome settings' });
+    }
+  });
+
+  app.post("/api/settings/welcome", async (req, res) => {
+    try {
+      const result = welcomeMessageSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: 'Validation error',
+          details: result.error.flatten().fieldErrors
+        });
+      }
+
+      const { title, description, buttonText, imageUrl } = result.data;
+
+      // Save each setting individually
+      await Promise.all([
+        storage.setBotSetting({ key: 'welcome_title', value: title }),
+        storage.setBotSetting({ key: 'welcome_description', value: description }),
+        storage.setBotSetting({ key: 'welcome_button_text', value: buttonText }),
+        storage.setBotSetting({ key: 'welcome_image_url', value: imageUrl || '' }),
+      ]);
+
+      res.json({ message: 'Welcome message settings updated successfully' });
+    } catch (error) {
+      console.error('Error updating welcome settings:', error);
+      res.status(500).json({ error: 'Failed to update welcome settings' });
     }
   });
 

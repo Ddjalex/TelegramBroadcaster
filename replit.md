@@ -27,6 +27,12 @@ Preferred communication style: Simple, everyday language.
   - Bot token successfully configured and connected
   - Bot initialization working correctly in development mode
   - Ready to handle user registrations and broadcast messages
+- **WELCOME MESSAGE FEATURE**: Added customizable bot welcome message system
+  - Admin can now customize welcome title, description, button text, and image
+  - Rich welcome messages with image support (similar to Wana Bingo style)
+  - Settings accessible through admin dashboard Settings page
+  - Bot dynamically uses custom welcome message for new users
+  - Fallback to text message if image URL fails to load
 - Fixed real-time user registration display - admin dashboard now shows new users automatically
 - Enhanced polling intervals (10 seconds) for immediate visibility of new registrations
 - Resolved "Disconnected" status display - now shows "Online" correctly

@@ -129,6 +129,14 @@ export const insertAdminCredentialSchema = createInsertSchema(adminCredentials).
   updatedAt: true,
 });
 
+// Welcome message schema
+export const welcomeMessageSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
+  description: z.string().min(1, 'Description is required').max(500, 'Description must be less than 500 characters'),
+  buttonText: z.string().min(1, 'Button text is required').max(50, 'Button text must be less than 50 characters'),
+  imageUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+});
+
 // Password change schema
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -153,3 +161,4 @@ export type InsertScheduledMessage = z.infer<typeof insertScheduledMessageSchema
 export type AdminCredential = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredential = z.infer<typeof insertAdminCredentialSchema>;
 export type ChangePassword = z.infer<typeof changePasswordSchema>;
+export type WelcomeMessage = z.infer<typeof welcomeMessageSchema>;

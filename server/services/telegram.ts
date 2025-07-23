@@ -85,25 +85,59 @@ class TelegramService {
             });
           }
 
-          const welcomeMessage = `
-🤖 Welcome to our Broadcast Bot!
+          // Get custom welcome message from settings
+          const titleSetting = await storage.getBotSetting('welcome_title');
+          const descriptionSetting = await storage.getBotSetting('welcome_description');
+          const buttonTextSetting = await storage.getBotSetting('welcome_button_text');
+          const imageUrlSetting = await storage.getBotSetting('welcome_image_url');
 
-To complete your registration and receive real-time notifications, please share your phone number.
+          const title = titleSetting?.value || '🤖 Welcome to our Broadcast Bot!';
+          const description = descriptionSetting?.value || 'To complete your registration and receive real-time notifications, please share your phone number.';
+          const buttonText = buttonTextSetting?.value || '📱 Share My Contact';
+          const imageUrl = imageUrlSetting?.value || '';
 
-Click the button below to share your contact.
-          `;
-
-          const options = {
-            reply_markup: {
-              keyboard: [
-                [{ text: '📱 Share My Contact', request_contact: true }]
-              ],
-              resize_keyboard: true,
-              one_time_keyboard: true
+          // Send welcome image first if provided
+          if (imageUrl) {
+            try {
+              await this.bot?.sendPhoto(chatId, imageUrl, {
+                caption: `${title}\n\n${description}`,
+                reply_markup: {
+                  keyboard: [
+                    [{ text: buttonText, request_contact: true }]
+                  ],
+                  resize_keyboard: true,
+                  one_time_keyboard: true
+                }
+              });
+            } catch (photoError) {
+              console.error('Failed to send welcome image, sending text message instead:', photoError);
+              // Fallback to text message if image fails
+              await this.bot?.sendMessage(chatId, `${title}\n\n${description}`, {
+                reply_markup: {
+                  keyboard: [
+                    [{ text: buttonText, request_contact: true }]
+                  ],
+                  resize_keyboard: true,
+                  one_time_keyboard: true
+                }
+              });
             }
-          };
+          } else {
+            // Send text message if no image
+            const welcomeMessage = `${title}\n\n${description}`;
+            
+            const options = {
+              reply_markup: {
+                keyboard: [
+                  [{ text: buttonText, request_contact: true }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+              }
+            };
 
-          await this.bot?.sendMessage(chatId, welcomeMessage, options);
+            await this.bot?.sendMessage(chatId, welcomeMessage, options);
+          }
         } else {
           // Update user activity
           await storage.updateUserActivity(telegramId);
