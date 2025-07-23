@@ -200,9 +200,16 @@ For questions or support, contact our administrators.
   async sendBroadcastMessage(users: User[], message: string, broadcastId: number) {
     const results = { successful: 0, failed: 0, errors: [] as string[] };
 
+    console.log(`Starting broadcast ${broadcastId} to ${users.length} users`);
+
     for (const user of users) {
       try {
-        await this.bot.sendMessage(user.telegramId, message, { parse_mode: 'HTML' });
+        if (!user.isActive) {
+          console.log(`Skipping inactive user ${user.telegramId}`);
+          continue;
+        }
+
+        await this.bot.sendMessage(parseInt(user.telegramId), message, { parse_mode: 'HTML' });
         
         // Create delivery record
         const delivery = await storage.createMessageDelivery({
@@ -213,6 +220,7 @@ For questions or support, contact our administrators.
 
         await storage.updateMessageDeliveryStatus(delivery.id, 'delivered');
         results.successful++;
+        console.log(`Message sent successfully to user ${user.telegramId}`);
       } catch (error: any) {
         console.error(`Failed to send message to user ${user.id}:`, error);
         
@@ -227,8 +235,12 @@ For questions or support, contact our administrators.
         results.failed++;
         results.errors.push(`User ${user.id}: ${error.message}`);
       }
+      
+      // Small delay to avoid hitting rate limits
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
 
+    console.log(`Broadcast ${broadcastId} completed: ${results.successful} successful, ${results.failed} failed`);
     return results;
   }
 

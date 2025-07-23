@@ -22,6 +22,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserActivity(telegramId: string): Promise<void>;
   updateUserPhone(telegramId: string, phoneNumber: string): Promise<void>;
+  updateUserStatus(id: number, isActive: boolean): Promise<void>;
+  deleteUser(id: number): Promise<void>;
   getAllUsers(): Promise<User[]>;
   getUserStats(): Promise<{
     total: number;
@@ -83,6 +85,17 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ phoneNumber, lastActiveAt: new Date() })
       .where(eq(users.telegramId, telegramId));
+  }
+
+  async updateUserStatus(id: number, isActive: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({ isActive })
+      .where(eq(users.id, id));
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getAllUsers(): Promise<User[]> {

@@ -7,6 +7,7 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { RecentBroadcasts } from "@/components/dashboard/recent-broadcasts";
 import { ComposeForm } from "@/components/broadcast/compose-form";
 import { MessagePreview } from "@/components/broadcast/message-preview";
+import { QuickBroadcast } from "@/components/broadcast/quick-broadcast";
 import { 
   Bell, 
   Plus, 
@@ -135,6 +136,8 @@ export default function Dashboard() {
 
           {/* Right Sidebar */}
           <div className="space-y-8">
+            {/* Quick Broadcast */}
+            <QuickBroadcast recipientCount={(stats as any)?.totalUsers || 0} />
             {/* Bot Status */}
             <Card>
               <CardHeader>

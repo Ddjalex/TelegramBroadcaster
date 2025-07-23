@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Download, UserPlus, Calendar } from "lucide-react";
+import { UserActions } from "@/components/users/user-actions";
 import { formatDistanceToNow } from "date-fns";
 import type { User } from "@shared/schema";
 
@@ -129,6 +130,7 @@ export default function Users() {
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead>Last Active</TableHead>
+                    <TableHead className="w-12">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -189,6 +191,9 @@ export default function Users() {
                               : 'Never'
                             }
                           </span>
+                        </TableCell>
+                        <TableCell>
+                          <UserActions user={user} />
                         </TableCell>
                       </TableRow>
                     );

@@ -56,6 +56,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User management endpoints
+  app.patch("/api/users/:id/status", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ error: 'isActive must be a boolean' });
+      }
+      
+      await storage.updateUserStatus(id, isActive);
+      res.json({ message: isActive ? 'User activated' : 'User deactivated' });
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      res.status(500).json({ error: 'Failed to update user status' });
+    }
+  });
+
+  app.delete("/api/users/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteUser(id);
+      res.json({ message: 'User deleted' });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ error: 'Failed to delete user' });
+    }
+  });
+
+  // Quick broadcast endpoint
+  app.post("/api/broadcasts/quick", async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || message.trim().length === 0) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Create quick broadcast
+      const broadcast = await storage.createBroadcast({
+        title: `Quick Broadcast - ${new Date().toLocaleString()}`,
+        message: message.trim(),
+        status: 'draft',
+      });
+
+      // Get all active users
+      const users = await storage.getAllUsers();
+      const activeUsers = users.filter(user => user.isActive);
+
+      if (activeUsers.length === 0) {
+        return res.status(400).json({ error: 'No active users to send message to' });
+      }
+
+      // Update broadcast status to sending
+      await storage.updateBroadcastStatus(broadcast.id, 'sending');
+
+      // Send broadcast in background
+      setImmediate(async () => {
+        try {
+          const results = await telegramService.sendBroadcastMessage(activeUsers, message, broadcast.id);
+          
+          // Update broadcast stats
+          await storage.updateBroadcastStats(broadcast.id, results.successful, results.failed);
+          await storage.updateBroadcastStatus(broadcast.id, 'sent');
+          
+          console.log(`Quick broadcast ${broadcast.id} completed: ${results.successful} successful, ${results.failed} failed`);
+        } catch (error) {
+          console.error(`Error sending quick broadcast ${broadcast.id}:`, error);
+          await storage.updateBroadcastStatus(broadcast.id, 'failed');
+        }
+      });
+
+      res.json({ 
+        message: 'Quick broadcast started',
+        broadcastId: broadcast.id,
+        recipientCount: activeUsers.length
+      });
+    } catch (error) {
+      console.error('Error starting quick broadcast:', error);
+      res.status(500).json({ error: 'Failed to start quick broadcast' });
+    }
+  });
+
   // Broadcast management
   app.get("/api/broadcasts", async (req, res) => {
     try {
