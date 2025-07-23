@@ -17,7 +17,7 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
-  // Temporarily disable WebSocket connection status
+  // WebSocket is disabled, so connection is always false
   const isConnected = false;
 
   if (isLoading) {

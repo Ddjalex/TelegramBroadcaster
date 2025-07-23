@@ -99,7 +99,9 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
           </Avatar>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Online</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {isWebSocketConnected ? 'Connected' : 'Disconnected'}
+            </p>
           </div>
           <Button 
             variant="ghost" 
