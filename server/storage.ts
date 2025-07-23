@@ -29,6 +29,7 @@ export interface IStorage {
   deleteUser(id: number): Promise<void>;
   removeUser(id: number): Promise<void>;
   getAllUsers(): Promise<User[]>;
+  getActiveUsers(): Promise<User[]>;
   getUserStats(): Promise<{
     total: number;
     activeToday: number;
@@ -117,6 +118,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllUsers(): Promise<User[]> {
     return db.select().from(users).orderBy(desc(users.joinedAt));
+  }
+
+  async getActiveUsers(): Promise<User[]> {
+    return db.select().from(users).where(eq(users.isActive, true)).orderBy(desc(users.joinedAt));
   }
 
   async getUserStats(): Promise<{ total: number; activeToday: number; newThisMonth: number }> {

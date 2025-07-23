@@ -254,8 +254,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update broadcast status to sending
       await storage.updateBroadcastStatus(id, 'sending');
 
-      // Get all active users
-      const users = await storage.getAllUsers();
+      // Get only active users for broadcasting
+      const users = await storage.getActiveUsers();
 
       // Send broadcast in background
       setImmediate(async () => {
