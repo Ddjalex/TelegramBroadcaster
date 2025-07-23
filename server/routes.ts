@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 // WebSocket imports disabled for Replit compatibility
 // import { WebSocketServer, WebSocket } from "ws";
@@ -7,6 +8,10 @@ import { storage } from "./storage";
 import { telegramService, setBroadcastFunction } from "./services/telegram";
 import { insertBroadcastSchema, insertScheduledMessageSchema, changePasswordSchema, welcomeMessageSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { nanoid } from 'nanoid';
 
 // WebSocket connection management (temporarily disabled for Replit compatibility)
 let wss: any = null;
@@ -36,6 +41,34 @@ async function initializeDefaultAdmin() {
   }
 }
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: uploadsDir,
+    filename: (req, file, cb) => {
+      const uniqueName = `${nanoid()}-${Date.now()}${path.extname(file.originalname)}`;
+      cb(null, uniqueName);
+    }
+  }),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up broadcast function for Telegram service
   setBroadcastFunction(broadcastToClients);
@@ -49,6 +82,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize default admin
   await initializeDefaultAdmin();
+
+  // Serve uploaded images statically
+  app.use('/uploads', express.static(uploadsDir));
+
+  // Image upload endpoint
+  app.post("/api/upload/image", upload.single('image'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No image file uploaded' });
+      }
+
+      // Return the public URL for the uploaded image
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({
+        success: true,
+        message: 'Image uploaded successfully',
+        imageUrl: `${req.protocol}://${req.get('host')}${imageUrl}`,
+        filename: req.file.filename
+      });
+    } catch (error: any) {
+      console.error('Image upload error:', error);
+      res.status(500).json({ 
+        error: 'Failed to upload image',
+        details: error.message
+      });
+    }
+  });
 
   // Secure admin authentication
   app.post("/api/auth/login", async (req, res) => {

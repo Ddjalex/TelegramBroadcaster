@@ -12,13 +12,15 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { changePasswordSchema, welcomeMessageSchema, type ChangePassword, type WelcomeMessage } from "@shared/schema";
-import { KeyRound, Shield, Settings as SettingsIcon, MessageSquare } from "lucide-react";
+import { KeyRound, Shield, Settings as SettingsIcon, MessageSquare, Upload, X } from "lucide-react";
 import * as React from "react";
 
 export default function Settings() {
   const { toast } = useToast();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const form = useForm<ChangePassword>({
     resolver: zodResolver(changePasswordSchema),
@@ -192,7 +194,7 @@ export default function Settings() {
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         <span>Welcome Image (Optional)</span>
-                        {field.value && (
+                        {(field.value || selectedImageFile) && (
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                             Image Set
                           </span>
@@ -200,10 +202,89 @@ export default function Settings() {
                       </FormLabel>
                       <FormControl>
                         <div className="space-y-3">
-                          <Input
-                            placeholder="https://example.com/welcome-image.jpg"
-                            {...field}
-                          />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* File Upload Section */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Upload Image File</Label>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      setSelectedImageFile(file);
+                                      setUploadingImage(true);
+                                      
+                                      try {
+                                        const formData = new FormData();
+                                        formData.append('image', file);
+                                        
+                                        const response = await fetch('/api/upload/image', {
+                                          method: 'POST',
+                                          body: formData,
+                                        });
+                                        
+                                        if (response.ok) {
+                                          const { imageUrl } = await response.json();
+                                          field.onChange(imageUrl);
+                                          toast({
+                                            title: "Image uploaded successfully",
+                                            description: "Your welcome image has been uploaded and set.",
+                                          });
+                                        } else {
+                                          throw new Error('Upload failed');
+                                        }
+                                      } catch (error) {
+                                        toast({
+                                          title: "Upload failed",
+                                          description: "Failed to upload image. Please try again.",
+                                          variant: "destructive",
+                                        });
+                                        setSelectedImageFile(null);
+                                      } finally {
+                                        setUploadingImage(false);
+                                      }
+                                    }
+                                  }}
+                                  className="file:mr-2 file:px-3 file:py-1 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                                {selectedImageFile && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedImageFile(null);
+                                      field.onChange("");
+                                    }}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                )}
+                              </div>
+                              {uploadingImage && (
+                                <div className="text-sm text-blue-600 flex items-center gap-2">
+                                  <Upload className="h-3 w-3 animate-pulse" />
+                                  Uploading image...
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* URL Input Section */}
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Or Enter Image URL</Label>
+                              <Input
+                                placeholder="https://example.com/welcome-image.jpg"
+                                value={field.value || ""}
+                                onChange={(e) => {
+                                  field.onChange(e.target.value);
+                                  setSelectedImageFile(null);
+                                }}
+                              />
+                            </div>
+                          </div>
+                          
                           {field.value && (
                             <div className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
                               <div className="text-sm font-medium mb-2">Image Preview:</div>
@@ -227,10 +308,10 @@ export default function Settings() {
                         </div>
                       </FormControl>
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p>• Upload your image to an image hosting service (like imgur.com, postimg.cc) and paste the URL here</p>
+                        <p>• Upload your own image file (JPG, PNG, GIF) - recommended for best results</p>
+                        <p>• Or paste an image URL from an image hosting service</p>
                         <p>• Recommended size: 600x400 pixels or larger</p>
-                        <p>• Supported formats: JPG, PNG, GIF</p>
-                        <p>• If no image is provided, only text will be sent</p>
+                        <p>• Maximum file size: 5MB</p>
                       </div>
                       <FormMessage />
                     </FormItem>
