@@ -1,11 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Eye, MoreVertical, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Search, Eye, MoreVertical, CheckCircle, Clock, AlertCircle, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import type { Broadcast } from "@shared/schema";
 
 const statusConfig = {
@@ -42,9 +47,55 @@ const statusConfig = {
 };
 
 export default function History() {
+  const [selectedBroadcast, setSelectedBroadcast] = useState<Broadcast | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const { toast } = useToast();
+
   const { data: broadcasts, isLoading } = useQuery({
     queryKey: ["/api/broadcasts"],
+    refetchInterval: 15000, // Refresh every 15 seconds
   });
+
+  const deleteBroadcastMutation = useMutation({
+    mutationFn: async (broadcastId: number) => {
+      const response = await fetch(`/api/broadcasts/${broadcastId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/broadcasts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      toast({
+        title: "Success",
+        description: "Broadcast deleted successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting broadcast:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete broadcast",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleViewBroadcast = (broadcast: Broadcast) => {
+    setSelectedBroadcast(broadcast);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleDeleteBroadcast = (broadcastId: number) => {
+    if (confirm('Are you sure you want to delete this broadcast? This action cannot be undone.')) {
+      deleteBroadcastMutation.mutate(broadcastId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -166,12 +217,30 @@ export default function History() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="sm">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleViewBroadcast(broadcast)}
+                              title="View broadcast details"
+                            >
                               <Eye size={16} />
                             </Button>
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical size={16} />
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical size={16} />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteBroadcast(broadcast.id)}
+                                  className="text-red-600 dark:text-red-400"
+                                >
+                                  <Trash2 size={16} className="mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -191,6 +260,119 @@ export default function History() {
           </CardContent>
         </Card>
       </div>
+
+      {/* View Broadcast Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Broadcast Details</DialogTitle>
+            <DialogDescription>
+              View the full details of this broadcast message
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBroadcast && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+                <p className="mt-1 text-sm text-gray-900 dark:text-white">{selectedBroadcast.title}</p>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                  <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                    {selectedBroadcast.message}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                  <div className="mt-1 flex items-center space-x-2">
+                    <div className={`w-6 h-6 ${statusConfig[selectedBroadcast.status as keyof typeof statusConfig]?.bgColor || statusConfig.draft.bgColor} rounded-lg flex items-center justify-center`}>
+                      {(() => {
+                        const StatusIcon = statusConfig[selectedBroadcast.status as keyof typeof statusConfig]?.icon || statusConfig.draft.icon;
+                        return <StatusIcon className={statusConfig[selectedBroadcast.status as keyof typeof statusConfig]?.color || statusConfig.draft.color} size={14} />;
+                      })()}
+                    </div>
+                    <span className="text-sm font-medium">
+                      {statusConfig[selectedBroadcast.status as keyof typeof statusConfig]?.label || 'Draft'}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Recipients</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {selectedBroadcast.totalRecipients?.toLocaleString() || 0}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Successful Deliveries</label>
+                  <p className="mt-1 text-sm text-green-600 dark:text-green-400 font-medium">
+                    {selectedBroadcast.successfulDeliveries?.toLocaleString() || 0}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Failed Deliveries</label>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
+                    {selectedBroadcast.failedDeliveries?.toLocaleString() || 0}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Created</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {selectedBroadcast.createdAt && formatDistanceToNow(new Date(selectedBroadcast.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sent</label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {selectedBroadcast.sentAt 
+                      ? formatDistanceToNow(new Date(selectedBroadcast.sentAt), { addSuffix: true })
+                      : 'Not sent yet'
+                    }
+                  </p>
+                </div>
+              </div>
+
+              {selectedBroadcast.status === 'sent' && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Delivery Rate</label>
+                  <div className="mt-1 flex items-center space-x-3">
+                    <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${(selectedBroadcast.totalRecipients || 0) > 0 
+                            ? (((selectedBroadcast.successfulDeliveries || 0) / (selectedBroadcast.totalRecipients || 1)) * 100)
+                            : 0
+                          }%` 
+                        }}
+                      ></div>
+                    </div>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 min-w-12">
+                      {(selectedBroadcast.totalRecipients || 0) > 0 
+                        ? (((selectedBroadcast.successfulDeliveries || 0) / (selectedBroadcast.totalRecipients || 1)) * 100).toFixed(1)
+                        : 0
+                      }%
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -43,6 +43,7 @@ export interface IStorage {
   getRecentBroadcasts(limit?: number): Promise<Broadcast[]>;
   updateBroadcastStatus(id: number, status: string, metadata?: any): Promise<void>;
   updateBroadcastStats(id: number, successful: number, failed: number): Promise<void>;
+  deleteBroadcast(id: number): Promise<void>;
 
   // Message delivery operations
   createMessageDelivery(delivery: InsertMessageDelivery): Promise<MessageDelivery>;
@@ -187,6 +188,13 @@ export class DatabaseStorage implements IStorage {
         totalRecipients: successful + failed,
       })
       .where(eq(broadcasts.id, id));
+  }
+
+  async deleteBroadcast(id: number): Promise<void> {
+    // First delete related message deliveries
+    await db.delete(messageDeliveries).where(eq(messageDeliveries.broadcastId, id));
+    // Then delete the broadcast
+    await db.delete(broadcasts).where(eq(broadcasts.id, id));
   }
 
   async createMessageDelivery(insertDelivery: InsertMessageDelivery): Promise<MessageDelivery> {

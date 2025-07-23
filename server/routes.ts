@@ -291,6 +291,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete broadcast
+  app.delete("/api/broadcasts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const broadcast = await storage.getBroadcast(id);
+      
+      if (!broadcast) {
+        return res.status(404).json({ error: 'Broadcast not found' });
+      }
+
+      await storage.deleteBroadcast(id);
+      res.json({ message: 'Broadcast deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting broadcast:', error);
+      res.status(500).json({ error: 'Failed to delete broadcast' });
+    }
+  });
+
   // Get broadcast deliveries
   app.get("/api/broadcasts/:id/deliveries", async (req, res) => {
     try {
