@@ -17,6 +17,8 @@ export function useAuth() {
   const logout = () => {
     localStorage.removeItem('admin_authenticated');
     setIsAuthenticated(false);
+    // Force page reload to ensure clean state
+    window.location.reload();
   };
 
   return {

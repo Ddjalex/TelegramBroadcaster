@@ -66,11 +66,11 @@ export function Sidebar() {
               >
                 <Icon size={20} />
                 <span className="font-medium">{item.name}</span>
-                {item.name === "Users" && userStats && 'total' in userStats && (
+{item.name === "Users" && userStats && typeof userStats === 'object' && 'total' in userStats ? (
                   <Badge variant="secondary" className="ml-auto">
-                    {(userStats as any).total.toLocaleString()}
+                    {(userStats as { total: number }).total.toLocaleString()}
                   </Badge>
-                )}
+                ) : null}
                 {item.name === "Scheduled Messages" && (
                   <Badge variant="outline" className="ml-auto bg-yellow-100 text-yellow-700 border-yellow-200">
                     3
