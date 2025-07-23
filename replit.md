@@ -11,7 +11,8 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### July 23, 2025
-- **MIGRATION COMPLETE**: Successfully migrated project from Replit Agent to Replit environment
+- **REPLIT MIGRATION COMPLETE**: Successfully migrated project from Replit Agent to Replit environment
+- **SECURITY FIX**: Resolved WebSocket connection errors by ensuring proper client/server separation
 - Created PostgreSQL database with full schema migration
 - Fixed all TypeScript compatibility issues in Telegram service
 - Made bot service handle missing tokens gracefully for development
