@@ -8,6 +8,8 @@ import { RecentBroadcasts } from "@/components/dashboard/recent-broadcasts";
 import { ComposeForm } from "@/components/broadcast/compose-form";
 import { MessagePreview } from "@/components/broadcast/message-preview";
 import { QuickBroadcast } from "@/components/broadcast/quick-broadcast";
+import { DashboardClock } from "@/components/ui/dashboard-clock";
+import { HeaderClock } from "@/components/ui/header-clock";
 import { 
   Bell, 
   Plus, 
@@ -109,6 +111,7 @@ export default function Dashboard() {
             <p className="text-gray-600 dark:text-gray-400 mt-1">Monitor your broadcast performance and manage users</p>
           </div>
           <div className="flex items-center space-x-4">
+            <HeaderClock />
             <Button variant="ghost" size="sm" className="relative text-gray-400 hover:text-gray-600">
               <Bell size={20} />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
@@ -123,10 +126,17 @@ export default function Dashboard() {
 
       {/* Dashboard Content */}
       <div className="p-8 space-y-8">
-        {/* Stats Cards */}
-        {stats && typeof stats === 'object' && stats !== null && 'totalUsers' in stats ? (
-          <StatsCards stats={stats as any} />
-        ) : null}
+        {/* Stats and Clock Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {stats && typeof stats === 'object' && stats !== null && 'totalUsers' in stats ? (
+              <StatsCards stats={stats as any} />
+            ) : null}
+          </div>
+          <div>
+            <DashboardClock />
+          </div>
+        </div>
 
         {/* Main Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

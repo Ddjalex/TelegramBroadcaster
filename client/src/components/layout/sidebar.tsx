@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { ConnectionStatus } from "@/components/ui/connection-status";
+import { RealTimeClock } from "@/components/ui/real-time-clock";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -91,6 +92,9 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between mb-3">
           <ConnectionStatus isConnected={isWebSocketConnected} />
+        </div>
+        <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <RealTimeClock />
         </div>
         <div className="flex items-center space-x-3">
           <Avatar className="w-10 h-10">
