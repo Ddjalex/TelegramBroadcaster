@@ -3,6 +3,7 @@ import {
   broadcasts, 
   messageDeliveries, 
   botSettings,
+  scheduledMessages,
   type User, 
   type InsertUser,
   type Broadcast,
@@ -10,7 +11,9 @@ import {
   type MessageDelivery,
   type InsertMessageDelivery,
   type BotSetting,
-  type InsertBotSetting
+  type InsertBotSetting,
+  type ScheduledMessage,
+  type InsertScheduledMessage
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, and, gte, lt } from "drizzle-orm";
@@ -47,6 +50,15 @@ export interface IStorage {
   // Bot settings
   getBotSetting(key: string): Promise<BotSetting | undefined>;
   setBotSetting(setting: InsertBotSetting): Promise<BotSetting>;
+
+  // Scheduled messages operations
+  createScheduledMessage(message: InsertScheduledMessage): Promise<ScheduledMessage>;
+  getScheduledMessage(id: number): Promise<ScheduledMessage | undefined>;
+  getAllScheduledMessages(): Promise<ScheduledMessage[]>;
+  updateScheduledMessage(id: number, updates: Partial<InsertScheduledMessage>): Promise<void>;
+  updateScheduledMessageStatus(id: number, status: string, sentAt?: Date): Promise<void>;
+  deleteScheduledMessage(id: number): Promise<void>;
+  getPendingScheduledMessages(): Promise<ScheduledMessage[]>;
 
   // Analytics
   getDashboardStats(): Promise<{
@@ -204,6 +216,71 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return setting;
+  }
+
+  // Scheduled messages operations
+  async createScheduledMessage(insertMessage: InsertScheduledMessage): Promise<ScheduledMessage> {
+    // Count current active users for recipient count
+    const activeUsers = await this.getAllUsers();
+    const recipientCount = activeUsers.filter(user => user.isActive).length;
+    
+    const [message] = await db
+      .insert(scheduledMessages)
+      .values({
+        ...insertMessage,
+        recipientCount,
+        scheduledFor: new Date(insertMessage.scheduledFor)
+      })
+      .returning();
+    return message;
+  }
+
+  async getScheduledMessage(id: number): Promise<ScheduledMessage | undefined> {
+    const [message] = await db.select().from(scheduledMessages).where(eq(scheduledMessages.id, id));
+    return message || undefined;
+  }
+
+  async getAllScheduledMessages(): Promise<ScheduledMessage[]> {
+    return await db.select().from(scheduledMessages).orderBy(desc(scheduledMessages.createdAt));
+  }
+
+  async updateScheduledMessage(id: number, updates: Partial<InsertScheduledMessage>): Promise<void> {
+    await db
+      .update(scheduledMessages)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+        ...(updates.scheduledFor && { scheduledFor: new Date(updates.scheduledFor) })
+      })
+      .where(eq(scheduledMessages.id, id));
+  }
+
+  async updateScheduledMessageStatus(id: number, status: string, sentAt?: Date): Promise<void> {
+    await db
+      .update(scheduledMessages)
+      .set({ 
+        status, 
+        sentAt: sentAt || (status === 'sent' ? new Date() : undefined),
+        updatedAt: new Date()
+      })
+      .where(eq(scheduledMessages.id, id));
+  }
+
+  async deleteScheduledMessage(id: number): Promise<void> {
+    await db.delete(scheduledMessages).where(eq(scheduledMessages.id, id));
+  }
+
+  async getPendingScheduledMessages(): Promise<ScheduledMessage[]> {
+    return await db
+      .select()
+      .from(scheduledMessages)
+      .where(
+        and(
+          eq(scheduledMessages.status, 'pending'),
+          lt(scheduledMessages.scheduledFor, new Date())
+        )
+      )
+      .orderBy(scheduledMessages.scheduledFor);
   }
 
   async getDashboardStats(): Promise<{

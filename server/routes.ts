@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { telegramService } from "./services/telegram";
-import { insertBroadcastSchema } from "@shared/schema";
+import { insertBroadcastSchema, insertScheduledMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -269,6 +269,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error saving setting:', error);
       res.status(500).json({ error: 'Failed to save setting' });
+    }
+  });
+
+  // Scheduled messages routes
+  app.get("/api/scheduled-messages", async (req, res) => {
+    try {
+      const messages = await storage.getAllScheduledMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching scheduled messages:', error);
+      res.status(500).json({ error: 'Failed to fetch scheduled messages' });
+    }
+  });
+
+  app.post("/api/scheduled-messages", async (req, res) => {
+    try {
+      const data = insertScheduledMessageSchema.parse(req.body);
+      const message = await storage.createScheduledMessage(data);
+      res.status(201).json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid message data', details: error.errors });
+      }
+      console.error('Error creating scheduled message:', error);
+      res.status(500).json({ error: 'Failed to create scheduled message' });
+    }
+  });
+
+  app.get("/api/scheduled-messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const message = await storage.getScheduledMessage(id);
+      
+      if (!message) {
+        return res.status(404).json({ error: 'Scheduled message not found' });
+      }
+      
+      res.json(message);
+    } catch (error) {
+      console.error('Error fetching scheduled message:', error);
+      res.status(500).json({ error: 'Failed to fetch scheduled message' });
+    }
+  });
+
+  app.patch("/api/scheduled-messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = insertScheduledMessageSchema.partial().parse(req.body);
+      
+      await storage.updateScheduledMessage(id, updates);
+      res.json({ message: 'Scheduled message updated successfully' });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid update data', details: error.errors });
+      }
+      console.error('Error updating scheduled message:', error);
+      res.status(500).json({ error: 'Failed to update scheduled message' });
+    }
+  });
+
+  app.patch("/api/scheduled-messages/:id/cancel", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      await storage.updateScheduledMessageStatus(id, 'cancelled');
+      res.json({ message: 'Scheduled message cancelled successfully' });
+    } catch (error) {
+      console.error('Error cancelling scheduled message:', error);
+      res.status(500).json({ error: 'Failed to cancel scheduled message' });
+    }
+  });
+
+  app.delete("/api/scheduled-messages/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      await storage.deleteScheduledMessage(id);
+      res.json({ message: 'Scheduled message deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting scheduled message:', error);
+      res.status(500).json({ error: 'Failed to delete scheduled message' });
     }
   });
 

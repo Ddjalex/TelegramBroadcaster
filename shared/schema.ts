@@ -46,6 +46,18 @@ export const botSettings = pgTable("bot_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const scheduledMessages = pgTable("scheduled_messages", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+  status: text("status", { enum: ["pending", "sent", "cancelled"] }).default("pending").notNull(),
+  recipientCount: integer("recipient_count").default(0).notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   deliveries: many(messageDeliveries),
@@ -93,6 +105,14 @@ export const insertBotSettingSchema = createInsertSchema(botSettings).omit({
   updatedAt: true,
 });
 
+export const insertScheduledMessageSchema = createInsertSchema(scheduledMessages).omit({
+  id: true,
+  recipientCount: true,
+  sentAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -102,3 +122,5 @@ export type MessageDelivery = typeof messageDeliveries.$inferSelect;
 export type InsertMessageDelivery = z.infer<typeof insertMessageDeliverySchema>;
 export type BotSetting = typeof botSettings.$inferSelect;
 export type InsertBotSetting = z.infer<typeof insertBotSettingSchema>;
+export type ScheduledMessage = typeof scheduledMessages.$inferSelect;
+export type InsertScheduledMessage = z.infer<typeof insertScheduledMessageSchema>;
