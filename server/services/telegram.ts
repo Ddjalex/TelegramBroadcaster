@@ -12,19 +12,26 @@ export function setBroadcastFunction(fn: (data: any) => void) {
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN || '';
 
 if (!BOT_TOKEN) {
-  throw new Error('TELEGRAM_BOT_TOKEN environment variable is required');
+  console.warn('TELEGRAM_BOT_TOKEN environment variable not set. Bot functionality will be disabled.');
 }
 
 class TelegramService {
-  private bot: TelegramBot;
+  private bot: TelegramBot | null = null;
   private isInitialized = false;
 
   constructor() {
-    this.bot = new TelegramBot(BOT_TOKEN, { polling: false });
+    if (BOT_TOKEN) {
+      this.bot = new TelegramBot(BOT_TOKEN, { polling: false });
+    }
   }
 
   async initialize() {
     if (this.isInitialized) return;
+
+    if (!BOT_TOKEN || !this.bot) {
+      console.warn('Skipping Telegram bot initialization - no token provided');
+      return;
+    }
 
     try {
       // Set up webhook if running in production, otherwise use polling
@@ -45,6 +52,8 @@ class TelegramService {
   }
 
   private setupCommands() {
+    if (!this.bot) return;
+    
     // Handle /start command
     this.bot.onText(/\/start/, async (msg) => {
       const chatId = msg.chat.id;
@@ -94,7 +103,7 @@ Click the button below to share your contact.
             }
           };
 
-          await this.bot.sendMessage(chatId, welcomeMessage, options);
+          await this.bot?.sendMessage(chatId, welcomeMessage, options);
         } else {
           // Update user activity
           await storage.updateUserActivity(telegramId);
@@ -119,7 +128,7 @@ Click the button below to complete your profile.
               }
             };
 
-            await this.bot.sendMessage(chatId, phoneRequestMessage, options);
+            await this.bot?.sendMessage(chatId, phoneRequestMessage, options);
           } else {
             const welcomeBackMessage = `
 ✅ Thank you! Your phone number has been saved.
@@ -127,7 +136,7 @@ Click the button below to complete your profile.
 Waiting for important announcements.
             `;
 
-            await this.bot.sendMessage(chatId, welcomeBackMessage, {
+            await this.bot?.sendMessage(chatId, welcomeBackMessage, {
               reply_markup: {
                 remove_keyboard: true
               }
@@ -136,12 +145,12 @@ Waiting for important announcements.
         }
       } catch (error) {
         console.error('Error handling /start command:', error);
-        await this.bot.sendMessage(chatId, 'Sorry, there was an error registering you. Please try again later.');
+        await this.bot?.sendMessage(chatId, 'Sorry, there was an error registering you. Please try again later.');
       }
     });
 
     // Handle contact sharing
-    this.bot.on('contact', async (msg) => {
+    this.bot?.on('contact', async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from?.id.toString();
       const contact = msg.contact;
@@ -170,21 +179,21 @@ Waiting for important announcements.
 Waiting for important announcements.
         `;
 
-        await this.bot.sendMessage(chatId, confirmMessage, {
+        await this.bot?.sendMessage(chatId, confirmMessage, {
           reply_markup: {
             remove_keyboard: true
           }
         });
       } catch (error) {
         console.error('Error saving contact:', error);
-        await this.bot.sendMessage(chatId, 'Sorry, there was an error saving your phone number. Please try again.');
+        await this.bot?.sendMessage(chatId, 'Sorry, there was an error saving your phone number. Please try again.');
       }
     });
 
 
 
     // Handle /help command
-    this.bot.onText(/\/help/, async (msg) => {
+    this.bot?.onText(/\/help/, async (msg) => {
       const chatId = msg.chat.id;
       
       const helpMessage = `
@@ -198,11 +207,11 @@ Waiting for important announcements.
 For questions or support, contact our administrators.
       `;
 
-      await this.bot.sendMessage(chatId, helpMessage);
+      await this.bot?.sendMessage(chatId, helpMessage);
     });
 
     // Handle /status command
-    this.bot.onText(/\/status/, async (msg) => {
+    this.bot?.onText(/\/status/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from?.id.toString();
       
@@ -212,18 +221,18 @@ For questions or support, contact our administrators.
         const user = await storage.getUserByTelegramId(telegramId);
         
         if (user && user.isActive) {
-          await this.bot.sendMessage(chatId, '✅ You are registered and will receive broadcasts.');
+          await this.bot?.sendMessage(chatId, '✅ You are registered and will receive broadcasts.');
         } else {
-          await this.bot.sendMessage(chatId, '❌ You are not registered. Use /start to register.');
+          await this.bot?.sendMessage(chatId, '❌ You are not registered. Use /start to register.');
         }
       } catch (error) {
         console.error('Error checking user status:', error);
-        await this.bot.sendMessage(chatId, 'Sorry, unable to check your status right now.');
+        await this.bot?.sendMessage(chatId, 'Sorry, unable to check your status right now.');
       }
     });
 
     // Handle /unsubscribe command
-    this.bot.onText(/\/unsubscribe/, async (msg) => {
+    this.bot?.onText(/\/unsubscribe/, async (msg) => {
       const chatId = msg.chat.id;
       const telegramId = msg.from?.id.toString();
       
@@ -235,13 +244,13 @@ For questions or support, contact our administrators.
         if (user) {
           // Deactivate user instead of deleting
           // Note: This would require adding an update method to storage
-          await this.bot.sendMessage(chatId, '✅ You have been unsubscribed from broadcasts.');
+          await this.bot?.sendMessage(chatId, '✅ You have been unsubscribed from broadcasts.');
         } else {
-          await this.bot.sendMessage(chatId, 'You were not registered for broadcasts.');
+          await this.bot?.sendMessage(chatId, 'You were not registered for broadcasts.');
         }
       } catch (error) {
         console.error('Error unsubscribing user:', error);
-        await this.bot.sendMessage(chatId, 'Sorry, unable to unsubscribe you right now.');
+        await this.bot?.sendMessage(chatId, 'Sorry, unable to unsubscribe you right now.');
       }
     });
   }
@@ -250,6 +259,11 @@ For questions or support, contact our administrators.
     const results = { successful: 0, failed: 0, errors: [] as string[] };
 
     console.log(`Starting broadcast ${broadcastId} to ${users.length} users`);
+
+    if (!this.bot) {
+      console.warn('Bot not initialized, cannot send messages');
+      return results;
+    }
 
     for (const user of users) {
       try {
@@ -295,10 +309,10 @@ For questions or support, contact our administrators.
 
   async getBotInfo() {
     try {
-      const me = await this.bot.getMe();
+      const me = await this.bot?.getMe();
       return {
-        username: me.username,
-        firstName: me.first_name,
+        username: me?.username || 'Unknown',
+        firstName: me?.first_name || 'Bot',
         isOnline: true,
         lastActivity: new Date(),
       };
@@ -316,7 +330,7 @@ For questions or support, contact our administrators.
   // Handle webhook updates (for production)
   async handleWebhookUpdate(update: any) {
     try {
-      await this.bot.processUpdate(update);
+      await this.bot?.processUpdate(update);
     } catch (error) {
       console.error('Error processing webhook update:', error);
     }
