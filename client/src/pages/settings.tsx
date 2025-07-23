@@ -1,308 +1,203 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Bot, Shield, Bell, MessageSquare, Save } from "lucide-react";
+import { changePasswordSchema, type ChangePassword } from "@shared/schema";
+import { KeyRound, Shield, Settings as SettingsIcon } from "lucide-react";
 
 export default function Settings() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  const [botToken, setBotToken] = useState("");
-  const [welcomeMessage, setWelcomeMessage] = useState("");
-  const [enableNotifications, setEnableNotifications] = useState(true);
-  const [autoResponse, setAutoResponse] = useState(true);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
-  const { data: botStatus } = useQuery({
-    queryKey: ["/api/bot/status"],
+  const form = useForm<ChangePassword>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
-  const saveBotTokenMutation = useMutation({
-    mutationFn: async (token: string) => {
-      const response = await apiRequest("POST", "/api/settings", {
-        key: "bot_token",
-        value: token,
-      });
-      return response.json();
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: ChangePassword) => {
+      return await apiRequest("/api/auth/change-password", "POST", data);
     },
     onSuccess: () => {
-      toast({ title: "Bot token updated successfully" });
-      queryClient.invalidateQueries({ queryKey: ["/api/bot/status"] });
+      toast({
+        title: "Success",
+        description: "Password changed successfully",
+      });
+      form.reset();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to update bot token",
+        description: error.message || "Failed to change password",
         variant: "destructive",
       });
     },
   });
 
-  const saveWelcomeMessageMutation = useMutation({
-    mutationFn: async (message: string) => {
-      const response = await apiRequest("POST", "/api/settings", {
-        key: "welcome_message",
-        value: message,
-      });
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({ title: "Welcome message updated successfully" });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update welcome message",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSaveBotToken = () => {
-    if (!botToken.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid bot token",
-        variant: "destructive",
-      });
-      return;
-    }
-    saveBotTokenMutation.mutate(botToken);
-  };
-
-  const handleSaveWelcomeMessage = () => {
-    saveWelcomeMessageMutation.mutate(welcomeMessage);
+  const handlePasswordChange = (data: ChangePassword) => {
+    changePasswordMutation.mutate(data);
   };
 
   return (
-    <div className="flex-1 overflow-auto">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Configure your bot settings and preferences</p>
-          </div>
-        </div>
-      </header>
+    <div className="container mx-auto py-6 px-4">
+      <div className="flex items-center gap-2 mb-6">
+        <SettingsIcon className="h-6 w-6" />
+        <h1 className="text-2xl font-bold">Settings</h1>
+      </div>
 
-      {/* Content */}
-      <div className="p-8 space-y-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Bot Configuration */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                  <Bot className="text-blue-600 dark:text-blue-400" size={20} />
-                </div>
-                <div>
-                  <CardTitle>Bot Configuration</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Configure your Telegram bot settings</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="bot-token">Bot Token</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    id="bot-token"
-                    type="password"
-                    placeholder="Enter your Telegram bot token"
-                    value={botToken}
-                    onChange={(e) => setBotToken(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleSaveBotToken}
-                    disabled={saveBotTokenMutation.isPending}
-                  >
-                    <Save size={16} className="mr-2" />
-                    Save
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Get your bot token from @BotFather on Telegram
+      <div className="grid gap-6 max-w-2xl">
+        {/* Security Settings */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <CardTitle>Security</CardTitle>
+            </div>
+            <CardDescription>
+              Manage your admin account security settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium">Current Admin Username: admin</p>
+                <p className="text-xs mt-1">
+                  For security, change your password regularly and use a strong password
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <Separator />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Bot Status</Label>
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      (botStatus as any)?.isOnline ? "bg-green-500" : "bg-red-500"
-                    }`}></div>
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {(botStatus as any)?.isOnline ? "Online" : "Offline"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Bot Username</Label>
-                  <p className="text-sm text-gray-900 dark:text-white">
-                    @{(botStatus as any)?.username || "Not configured"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Message Settings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                  <MessageSquare className="text-green-600 dark:text-green-400" size={20} />
-                </div>
-                <div>
-                  <CardTitle>Message Settings</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Customize your bot's messages and responses</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="welcome-message">Welcome Message</Label>
-                <Textarea
-                  id="welcome-message"
-                  placeholder="Enter the welcome message for new users"
-                  value={welcomeMessage}
-                  onChange={(e) => setWelcomeMessage(e.target.value)}
-                  rows={4}
+        {/* Change Password */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5" />
+              <CardTitle>Change Password</CardTitle>
+            </div>
+            <CardDescription>
+              Update your admin password to keep your account secure
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handlePasswordChange)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="currentPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showCurrentPassword ? "text" : "password"}
+                            placeholder="Enter your current password"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          >
+                            {showCurrentPassword ? "Hide" : "Show"}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    This message will be sent to users when they use /start
-                  </p>
-                  <Button 
-                    size="sm"
-                    onClick={handleSaveWelcomeMessage}
-                    disabled={saveWelcomeMessageMutation.isPending}
-                  >
-                    <Save size={16} className="mr-2" />
-                    Save
-                  </Button>
-                </div>
-              </div>
 
-              <Separator />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Auto Response</Label>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Automatically respond to user messages
-                    </p>
-                  </div>
-                  <Switch
-                    checked={autoResponse}
-                    onCheckedChange={setAutoResponse}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Notification Settings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg flex items-center justify-center">
-                  <Bell className="text-yellow-600 dark:text-yellow-400" size={20} />
-                </div>
-                <div>
-                  <CardTitle>Notifications</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Configure notification preferences</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Receive email alerts for important events
-                  </p>
-                </div>
-                <Switch
-                  checked={enableNotifications}
-                  onCheckedChange={setEnableNotifications}
+                <FormField
+                  control={form.control}
+                  name="newPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showNewPassword ? "text" : "password"}
+                            placeholder="Enter your new password (min 6 characters)"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            {showNewPassword ? "Hide" : "Show"}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <Separator />
-
-              <div className="space-y-2">
-                <Label htmlFor="admin-email">Admin Email</Label>
-                <Input
-                  id="admin-email"
-                  type="email"
-                  placeholder="admin@example.com"
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm New Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Confirm your new password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Email address for admin notifications
-                </p>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Security Settings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-                  <Shield className="text-red-600 dark:text-red-400" size={20} />
-                </div>
-                <div>
-                  <CardTitle>Security</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Security and access control settings</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-password">Admin Password</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    id="admin-password"
-                    type="password"
-                    placeholder="Enter new admin password"
-                    className="flex-1"
-                  />
-                  <Button variant="outline">
-                    Update
-                  </Button>
-                </div>
-              </div>
+                <Button
+                  type="submit"
+                  disabled={changePasswordMutation.isPending}
+                  className="w-full"
+                >
+                  {changePasswordMutation.isPending ? "Changing Password..." : "Change Password"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-              <Separator />
-
-              <div className="space-y-2">
-                <Label>API Access</Label>
-                <div className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-800 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">Enable API Access</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Allow external API access to this bot</p>
-                  </div>
-                  <Switch defaultChecked={false} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Security Tips */}
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+          <CardHeader>
+            <CardTitle className="text-amber-800 dark:text-amber-200">Security Tips</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-2">
+              <li>• Use a strong password with at least 8 characters</li>
+              <li>• Include uppercase, lowercase, numbers, and special characters</li>
+              <li>• Don't reuse passwords from other accounts</li>
+              <li>• Change your password regularly</li>
+              <li>• Keep your login credentials confidential</li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
