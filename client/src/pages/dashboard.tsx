@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/dashboard/stats"],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds for real-time updates
   });
 
   const { data: recentBroadcasts, isLoading: broadcastsLoading } = useQuery({
@@ -42,6 +42,7 @@ export default function Dashboard() {
 
   const { data: userStats } = useQuery({
     queryKey: ["/api/users/stats"],
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   const quickActions = [

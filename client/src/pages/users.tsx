@@ -21,10 +21,12 @@ export default function Users() {
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["/api/users"],
+    refetchInterval: 10000, // Refresh every 10 seconds for real-time updates
   });
 
   const { data: userStats } = useQuery({
     queryKey: ["/api/users/stats"],
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   const muteUserMutation = useMutation({

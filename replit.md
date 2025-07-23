@@ -16,6 +16,9 @@ Preferred communication style: Simple, everyday language.
 - Configured Telegram bot token for API connectivity
 - Fixed database table creation and connection issues
 - Application now running cleanly on Replit with proper security practices
+- Fixed real-time user registration display - admin dashboard now shows new users automatically
+- Enhanced polling intervals (10 seconds) for immediate visibility of new registrations
+- Resolved "Disconnected" status display - now shows "Online" correctly
 
 ### Previous Updates
 - Added admin authentication system with login page
