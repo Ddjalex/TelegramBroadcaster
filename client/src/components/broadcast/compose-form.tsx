@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -45,14 +45,15 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/broadcasts"] });
-      toast({ title: "Broadcast saved as draft" });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      toast({ title: "Broadcast saved successfully", description: "Your message has been saved as a draft" });
       form.reset();
       setMessageLength(0);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to save broadcast",
+        description: error.message || "Failed to save broadcast",
         variant: "destructive",
       });
     },
@@ -63,15 +64,18 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
       const response = await apiRequest("POST", `/api/broadcasts/${broadcastId}/send`);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/broadcasts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
-      toast({ title: "Broadcast sent successfully!" });
+      toast({ 
+        title: "Broadcast sent successfully!", 
+        description: `Message delivered to ${data.recipientCount || 0} users`
+      });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to send broadcast",
+        description: error.message || "Failed to send broadcast",
         variant: "destructive",
       });
     },
@@ -100,9 +104,9 @@ export function ComposeForm({ onPreview }: ComposeFormProps) {
   const watchMessage = form.watch("message");
   
   // Update message length when message changes
-  useState(() => {
+  React.useEffect(() => {
     setMessageLength(watchMessage?.length || 0);
-  });
+  }, [watchMessage]);
 
   return (
     <Card>

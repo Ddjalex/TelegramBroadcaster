@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { StatsCards } from "@/components/dashboard/stats-cards";
+import { EnhancedStats } from "@/components/dashboard/enhanced-stats";
 import { RecentBroadcasts } from "@/components/dashboard/recent-broadcasts";
 import { ComposeForm } from "@/components/broadcast/compose-form";
 import { MessagePreview } from "@/components/broadcast/message-preview";
@@ -130,8 +130,8 @@ export default function Dashboard() {
         {/* Stats and Clock Row */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
-            {stats && typeof stats === 'object' && stats !== null && 'totalUsers' in stats ? (
-              <StatsCards stats={stats as any} />
+            {stats && userStats && typeof stats === 'object' && stats !== null && 'totalUsers' in stats ? (
+              <EnhancedStats stats={stats as any} userStats={userStats as any} />
             ) : null}
           </div>
           <div>

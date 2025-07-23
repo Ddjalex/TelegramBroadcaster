@@ -1,23 +1,20 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer, WebSocket } from "ws";
+// WebSocket imports disabled for Replit compatibility
+// import { WebSocketServer, WebSocket } from "ws";
 import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { telegramService, setBroadcastFunction } from "./services/telegram";
 import { insertBroadcastSchema, insertScheduledMessageSchema, changePasswordSchema } from "@shared/schema";
 import { z } from "zod";
 
-// WebSocket connection management
-let wss: WebSocketServer;
-const clients = new Set<WebSocket>();
+// WebSocket connection management (temporarily disabled for Replit compatibility)
+let wss: any = null;
+const clients = new Set<any>();
 
 function broadcastToClients(data: any) {
-  const message = JSON.stringify(data);
-  clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
-  });
+  // WebSocket disabled - using HTTP polling instead
+  console.log('Broadcast notification:', data.type);
 }
 
 // Initialize default admin if none exists
@@ -534,22 +531,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // Setup WebSocket server
-  wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
-  wss.on('connection', (ws) => {
-    clients.add(ws);
-    console.log('New WebSocket client connected');
-    
-    ws.on('close', () => {
-      clients.delete(ws);
-      console.log('WebSocket client disconnected');
-    });
-    
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      clients.delete(ws);
-    });
-  });
+  // WebSocket server disabled for Replit compatibility
+  // Using HTTP polling for real-time updates instead
+  console.log('HTTP server started - WebSocket disabled');
   
   return httpServer;
 }
