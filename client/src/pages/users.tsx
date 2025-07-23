@@ -12,7 +12,6 @@ import { Search, Download, UserPlus, Calendar, MoreHorizontal } from "lucide-rea
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 
 export default function Users() {
@@ -30,10 +29,19 @@ export default function Users() {
 
   const muteUserMutation = useMutation({
     mutationFn: async ({ userId, isActive }: { userId: number; isActive: boolean }) => {
-      await apiRequest(`/api/users/${userId}/status`, {
+      const response = await fetch(`/api/users/${userId}/status`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ isActive: !isActive }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
     },
     onSuccess: (_, { isActive }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -55,9 +63,18 @@ export default function Users() {
 
   const removeUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      await apiRequest(`/api/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
