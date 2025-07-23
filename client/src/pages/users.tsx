@@ -163,9 +163,16 @@ export default function Users() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            {(user as any).phoneNumber || 'Not provided'}
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              {(user as any).phoneNumber || 'Pending'}
+                            </span>
+                            {!(user as any).phoneNumber && (
+                              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                Requested
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">

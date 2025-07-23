@@ -81,15 +81,38 @@ Click the button below or send your phone number manually.
           // Update user activity
           await storage.updateUserActivity(telegramId);
           
-          const welcomeBackMessage = `
+          // Check if user has phone number
+          if (!user.phoneNumber) {
+            const phoneRequestMessage = `
 👋 Welcome back!
 
-You're already registered to receive updates and announcements.
+To ensure you receive important notifications, please share your phone number.
+
+Click the button below to complete your profile.
+            `;
+
+            const options = {
+              reply_markup: {
+                keyboard: [
+                  [{ text: '📱 Share Phone Number', request_contact: true }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+              }
+            };
+
+            await this.bot.sendMessage(chatId, phoneRequestMessage, options);
+          } else {
+            const welcomeBackMessage = `
+👋 Welcome back!
+
+You're registered and verified to receive updates and announcements.
 
 Use /help to see available commands.
-          `;
+            `;
 
-          await this.bot.sendMessage(chatId, welcomeBackMessage);
+            await this.bot.sendMessage(chatId, welcomeBackMessage);
+          }
         }
       } catch (error) {
         console.error('Error handling /start command:', error);
@@ -112,10 +135,11 @@ Use /help to see available commands.
         const confirmMessage = `
 ✅ Thank you! Your phone number has been saved.
 
-You're now fully registered to receive:
-- Important announcements
+You're now fully verified to receive:
+- Important announcements  
 - Real-time notifications
 - Community updates
+- Priority support
 
 Use /help to see all available commands.
         `;
