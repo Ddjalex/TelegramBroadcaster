@@ -16,27 +16,37 @@ For the application to work properly in production, you need to set these enviro
 
 1. **Fork/Clone the repository** to your GitHub account
 
-2. **Create a new Web Service** on Render:
+2. **Create a PostgreSQL Database FIRST**:
+   - In Render dashboard, click "New +" → "PostgreSQL" 
+   - Name: `telegram-bot-db` (or any name you prefer)
+   - Select the free tier
+   - Click "Create Database"
+   - Wait for database to be created
+   - Copy the "Internal Database URL" from the database dashboard
+
+3. **Create a new Web Service** on Render:
    - Connect your GitHub repository
    - Choose the branch (usually `main`)
 
-3. **Configure Build Settings**:
+4. **Configure Build Settings**:
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `node start-production.js`
    - **Node Version**: 20.x or higher
 
-4. **Set Environment Variables** in Render dashboard:
+5. **Set Environment Variables** in Render dashboard:
    ```
-   DATABASE_URL=your_postgresql_connection_string
-   TELEGRAM_BOT_TOKEN=your_bot_token_from_botfather
+   DATABASE_URL=paste_your_internal_database_url_here
+   BOT_TOKEN=your_bot_token_from_botfather
    NODE_ENV=production
+   PORT=10000
    ```
-
-5. **Create a PostgreSQL Database**:
-   - Add a PostgreSQL database service in Render
-   - Copy the connection string to `DATABASE_URL`
 
 6. **Deploy**: Click "Deploy" and wait for the build to complete
+
+7. **Access your dashboard**: Once deployed, visit your app URL and login with:
+   - Username: `admin`
+   - Password: `admin123`
+   - **IMPORTANT**: Change this password immediately in Settings!
 
 ## Troubleshooting
 
