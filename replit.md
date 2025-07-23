@@ -17,10 +17,11 @@ Preferred communication style: Simple, everyday language.
 - Simplified phone sharing confirmation message to "Thank you! Your phone number has been saved. Waiting for important announcements."
 - Added logout functionality to admin dashboard sidebar
 - Removed callback query handlers for cleaner bot interaction
-- **CRITICAL FIX**: Fixed broadcast system to only send messages to active users - blocked/inactive users are now properly filtered out
+- **CRITICAL FIX**: Fixed broadcast system to only send messages to active users - inactive users are now properly filtered out
 - Added real-time WebSocket notification system for all admin actions
 - Implemented WebSocket server with automatic reconnection and connection status indicator
-- Fixed TypeScript errors in user management preventing block/mute functionality from working
+- Fixed TypeScript errors in user management preventing mute functionality from working
+- Removed block functionality from admin interface - users can only be muted or removed
 
 ## System Architecture
 

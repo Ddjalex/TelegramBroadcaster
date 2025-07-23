@@ -98,14 +98,6 @@ export default function Users() {
     muteUserMutation.mutate({ userId, isActive });
   };
 
-  const handleBlockUser = (userId: number) => {
-    const user = users?.find(u => u.id === userId);
-    const isCurrentlyActive = user?.isActive;
-    
-    // Toggle block status - if user is active, block them; if blocked, unblock them
-    muteUserMutation.mutate({ userId, isActive: !isCurrentlyActive });
-  };
-
   const handleRemoveUser = (userId: number) => {
     if (confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
       removeUserMutation.mutate(userId);
@@ -318,12 +310,6 @@ export default function Users() {
                                 onClick={() => handleMuteUser(user.id, Boolean(user.isActive))}
                               >
                                 {user.isActive ? 'Mute User' : 'Unmute User'}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleBlockUser(user.id)}
-                                className="text-orange-600"
-                              >
-                                {user.isActive ? 'Block User' : 'Unblock User'}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleRemoveUser(user.id)}
