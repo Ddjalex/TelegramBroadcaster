@@ -11,13 +11,22 @@ export function useWebSocket() {
   const ws = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    
     const connect = () => {
       try {
+        // Clear any existing reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        
+        console.log('Connecting to WebSocket:', wsUrl);
+        
         ws.current = new WebSocket(wsUrl);
         
         ws.current.onopen = () => {
@@ -34,11 +43,14 @@ export function useWebSocket() {
           }
         };
         
-        ws.current.onclose = () => {
-          console.log('WebSocket disconnected');
+        ws.current.onclose = (event) => {
+          console.log('WebSocket disconnected:', event.code, event.reason);
           setIsConnected(false);
-          // Reconnect after 3 seconds
-          setTimeout(connect, 3000);
+          
+          // Only reconnect if connection wasn't closed intentionally
+          if (event.code !== 1000) {
+            reconnectTimeoutRef.current = setTimeout(connect, 3000);
+          }
         };
         
         ws.current.onerror = (error) => {
@@ -47,15 +59,20 @@ export function useWebSocket() {
         };
       } catch (error) {
         console.error('Failed to connect WebSocket:', error);
-        setTimeout(connect, 3000);
+        setIsConnected(false);
+        reconnectTimeoutRef.current = setTimeout(connect, 3000);
       }
     };
     
     connect();
     
     return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
       if (ws.current) {
-        ws.current.close();
+        ws.current.close(1000, 'Component unmounting');
       }
     };
   }, []);
