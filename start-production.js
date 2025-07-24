@@ -1,51 +1,46 @@
 #!/usr/bin/env node
 
-// Production startup script with better error handling and logging
-console.log('Starting Telegram Broadcast Bot in production mode...');
-console.log('Node.js version:', process.version);
-console.log('Current directory:', process.cwd());
+// Production startup script for Render deployment
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+console.log('🚀 Starting Telegram Broadcast Bot in production mode...');
+console.log('📁 Current directory:', __dirname);
+console.log('🌍 Environment variables:');
+console.log('  - NODE_ENV:', process.env.NODE_ENV);
+console.log('  - PORT:', process.env.PORT);
+console.log('  - DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Missing');
+console.log('  - TELEGRAM_BOT_TOKEN:', process.env.TELEGRAM_BOT_TOKEN ? '✅ Set' : '❌ Missing');
+console.log('  - RENDER_EXTERNAL_URL:', process.env.RENDER_EXTERNAL_URL ? '✅ Set' : '❌ Missing');
 
 // Check for required environment variables
-const requiredEnvVars = ['DATABASE_URL'];
-const missingEnvVars = requiredEnvVars.filter(env => !process.env[env]);
+const requiredEnvVars = ['DATABASE_URL', 'TELEGRAM_BOT_TOKEN'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
-  console.error('Missing required environment variables:', missingEnvVars);
-  console.error('Please set these environment variables before starting the application.');
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
   process.exit(1);
 }
 
-// Optional environment variables with warnings
-const optionalEnvVars = ['TELEGRAM_BOT_TOKEN'];
-optionalEnvVars.forEach(env => {
-  if (!process.env[env]) {
-    console.warn(`Warning: ${env} is not set. Some features may not work properly.`);
-  }
-});
-
-console.log('Environment check passed. Starting application...');
-
-// Set default values for production
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-process.env.PORT = process.env.PORT || '10000'; // Default Render port
-
-// Handle uncaught exceptions and unhandled rejections
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  console.error('Stack:', error.stack);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-// Import and start the application
 try {
-  await import('./dist/index.js');
+  // Import and start the server
+  const serverPath = join(__dirname, 'dist', 'index.js');
+  console.log('📂 Loading server from:', serverPath);
+  
+  // Set production environment
+  process.env.NODE_ENV = 'production';
+  
+  // Import the built server
+  await import(serverPath);
+  
+  console.log('✅ Server started successfully');
 } catch (error) {
-  console.error('Failed to start application:', error);
-  console.error('Stack:', error.stack);
+  console.error('💥 Failed to start server:', error);
+  console.error(error.stack);
   process.exit(1);
 }
