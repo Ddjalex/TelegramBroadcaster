@@ -39,9 +39,8 @@ Value: 10000
 ### 5. RENDER_EXTERNAL_URL
 ```
 Variable Name: RENDER_EXTERNAL_URL
-Value: https://your-service-name.onrender.com
+Value: https://telegrambroadcaster-ke1b.onrender.com
 ```
-**IMPORTANT:** Replace `your-service-name` with your actual Render service name from the URL.
 
 ## How to Find Your Render Service Name
 
@@ -49,22 +48,22 @@ Value: https://your-service-name.onrender.com
 2. Look at the URL - it will be something like: `https://my-telegram-bot-xyz123.onrender.com`
 3. Use that exact URL for RENDER_EXTERNAL_URL
 
-## Example Complete Setup
+## Your Complete Setup
 
-If your service URL is `https://ethioads-bot-abc123.onrender.com`, your variables would be:
+For your service at `https://telegrambroadcaster-ke1b.onrender.com`, your variables should be:
 
 ```
-DATABASE_URL = postgresql://user:pass@host:5432/db_name_from_your_render_db
-TELEGRAM_BOT_TOKEN = 1234567890:ABCdefGhIjKlMnOpQrStUvWxYz_your_actual_token
+DATABASE_URL = [your_postgresql_internal_database_url_from_render]
+TELEGRAM_BOT_TOKEN = [your_telegram_bot_token_from_botfather]
 NODE_ENV = production
 PORT = 10000
-RENDER_EXTERNAL_URL = https://ethioads-bot-abc123.onrender.com
+RENDER_EXTERNAL_URL = https://telegrambroadcaster-ke1b.onrender.com
 ```
 
 ## Webhook Information
 
 The webhook endpoint is automatically configured as:
-- **Webhook URL:** `https://your-service-name.onrender.com/api/telegram/webhook`
+- **Webhook URL:** `https://telegrambroadcaster-ke1b.onrender.com/api/telegram/webhook`
 - **Method:** POST
 - **Content-Type:** application/json
 
