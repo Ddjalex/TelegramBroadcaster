@@ -51,8 +51,26 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize default admin user
-  await initializeDefaultAdmin();
+  // Initialize default admin user with retry logic for production
+  let adminInitialized = false;
+  for (let i = 0; i < 3; i++) {
+    try {
+      await initializeDefaultAdmin();
+      adminInitialized = true;
+      console.log('✅ Admin user initialized successfully');
+      break;
+    } catch (error) {
+      console.error(`❌ Admin initialization attempt ${i + 1} failed:`, error);
+      if (i < 2) {
+        console.log('⏳ Retrying in 2 seconds...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+  
+  if (!adminInitialized) {
+    console.error('⚠️ Failed to initialize admin user after 3 attempts');
+  }
   
   const server = await registerRoutes(app);
 
