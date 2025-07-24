@@ -34,6 +34,9 @@ class TelegramService {
     }
 
     try {
+      // Clear any existing webhooks first to prevent conflicts
+      await this.bot.deleteWebHook();
+      
       // Set up webhook if running in production, otherwise use polling
       if (process.env.NODE_ENV === 'production') {
         // For Render deployment, construct webhook URL from Render service URL
@@ -43,7 +46,9 @@ class TelegramService {
         await this.bot.setWebHook(webhookUrl);
         console.log('Webhook set successfully');
       } else {
-        await this.bot.startPolling();
+        // Add a small delay to prevent conflicts
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await this.bot.startPolling({restart: true});
         console.log('Bot polling started for development');
       }
 
@@ -52,7 +57,8 @@ class TelegramService {
       console.log('Telegram bot initialized successfully');
     } catch (error) {
       console.error('Failed to initialize Telegram bot:', error);
-      throw error;
+      // Don't throw error - allow the server to continue running
+      console.log('Bot will continue without polling/webhook');
     }
   }
 
