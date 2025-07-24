@@ -1,0 +1,143 @@
+api/users/stats:1  Failed to load resource: the server responded with a status of 500 ()
+api/dashboard/stats:1  Failed to load resource: the server responded with a status of 500 ()
+api/broadcasts:1  Failed to load resource: the server responded with a status of 500 ()
+api/dashboard/stats:1  Failed to load resource: the server responded with a status of 500 ()
+api/users:1  Failed to load resource: the server responded with a status of 500 ()
+api/users/stats:1  Failed to load resource: the server responded with a status of 500 ()
+api/dashboard/stats:1  Failed to load resource: the server responded with a status of 500 ()
+api/settings/welcome:1  Failed to load resource: the server responded with a status of 500 ()
+settings:1 Mixed Content: The page at 'https://telegrambroadcaster-ke1b.onrender.com/settings' was loaded over HTTPS, but requested an insecure element 'http://telegrambroadcaster-ke1b.onrender.com/uploads/SyETn5BHjkFfz06nVWGKF-1753360045114.jpg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html
+settings:1 Mixed Content: The page at 'https://telegrambroadcaster-ke1b.onrender.com/settings' was loaded over HTTPS, but requested an insecure element 'http://telegrambroadcaster-ke1b.onrender.com/uploads/SyETn5BHjkFfz06nVWGKF-1753360045114.jpg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html
+api/settings/welcome:1  Failed to load resource: the server responded with a status of 500 ()
+api/settings/welcome:1  Failed to load resource: the server responded with a status of 500 ()
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/scheduled-messages 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/users/stats 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/broadcasts 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/users/stats 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/users 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  GET https://telegrambroadcaster-ke1b.onrender.com/api/dashboard/stats 500 (Internal Server Error)
+(anonymous) @ index-CHUyHc5t.js:48
+o @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+fetch @ index-CHUyHc5t.js:48
+#d @ index-CHUyHc5t.js:48
+onSubscribe @ index-CHUyHc5t.js:48
+subscribe @ index-CHUyHc5t.js:48
+(anonymous) @ index-CHUyHc5t.js:48
+jp @ index-CHUyHc5t.js:38
+Nl @ index-CHUyHc5t.js:40
+Si @ index-CHUyHc5t.js:40
+KS @ index-CHUyHc5t.js:40
+Ns @ index-CHUyHc5t.js:40
+_g @ index-CHUyHc5t.js:40
+$r @ index-CHUyHc5t.js:38
+(anonymous) @ index-CHUyHc5t.js:40
+index-CHUyHc5t.js:48  POST https://telegrambroadcaster-ke1b.onrender.com/api/broadcasts 500 (Internal Server Error)
+ts @ index-CHUyHc5t.js:48
+mutationFn @ index-CHUyHc5t.js:278
+fn @ index-CHUyHc5t.js:48
+C @ index-CHUyHc5t.js:48
+start @ index-CHUyHc5t.js:48
+execute @ index-CHUyHc5t.js:48
+await in execute
+mutate @ index-CHUyHc5t.js:48
+x @ index-CHUyHc5t.js:278
+(anonymous) @ index-CHUyHc5t.js:278
+await in (anonymous)
+h1 @ index-CHUyHc5t.js:37
+p1 @ index-CHUyHc5t.js:37
+g1 @ index-CHUyHc5t.js:37
+ep @ index-CHUyHc5t.js:37
+tp @ index-CHUyHc5t.js:37
+(anonymous) @ index-CHUyHc5t.js:37
+Vd @ index-CHUyHc5t.js:40
+am @ index-CHUyHc5t.js:37
+Vc @ index-CHUyHc5t.js:37
+Sc @ index-CHUyHc5t.js:37
+M1 @ index-CHUyHc5t.js:37

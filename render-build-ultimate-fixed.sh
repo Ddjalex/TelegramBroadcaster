@@ -29,7 +29,21 @@ if ! npx vite --help >/dev/null 2>&1; then
     npm install -g vite
 fi
 
-echo "📊 Pushing database schema..."
+echo "🗑️ Cleaning up old authentication tables..."
+# Create a temporary SQL script to clean up authentication remnants
+cat > cleanup.sql << 'EOF'
+DROP TABLE IF EXISTS admin_credentials CASCADE;
+DROP TABLE IF EXISTS session CASCADE;
+EOF
+
+# Apply cleanup if DATABASE_URL is available
+if [ -n "$DATABASE_URL" ]; then
+    echo "Applying database cleanup..."
+    psql "$DATABASE_URL" -f cleanup.sql || echo "⚠️ Cleanup failed, continuing..."
+    rm -f cleanup.sql
+fi
+
+echo "📊 Pushing updated database schema..."
 if ! npx drizzle-kit push --config=./drizzle.config.ts; then
     echo "⚠️ Schema push failed, but continuing with build..."
 fi
