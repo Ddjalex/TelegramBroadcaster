@@ -17,6 +17,15 @@ echo ""
 echo "📦 PHASE 2: Installing dependencies"
 npm install --legacy-peer-deps --include=dev --verbose
 
+# Ensure vite is properly installed in node_modules
+echo "📦 PHASE 2.1: Ensuring Vite installation"
+npm install vite@latest @vitejs/plugin-react@latest --save-dev --legacy-peer-deps --no-audit
+
+# Additional step: Ensure all vite-related packages are properly linked
+echo "📦 PHASE 2.2: Rebuilding node_modules structure"
+npm dedupe --legacy-peer-deps || true
+npm rebuild --legacy-peer-deps || true
+
 # Phase 3: Force fix security (optional)
 echo ""
 echo "🔒 PHASE 3: Security fixes"
@@ -45,8 +54,48 @@ echo "ESBuild version: $(./node_modules/.bin/esbuild --version 2>/dev/null || np
 # Phase 5: Build frontend
 echo ""
 echo "🏗️ PHASE 5: Building frontend"
-# Try direct binary first, then npx as fallback
-./node_modules/.bin/vite build --mode production 2>/dev/null || npx vite build --mode production
+
+# Clear any vite cache that might cause issues
+rm -rf node_modules/.vite-temp node_modules/.vite .vite || true
+
+# Set environment variables for better module resolution
+export NODE_ENV=production
+export NODE_PATH="$PWD/node_modules"
+export VITE_CONFIG_PATH="$PWD/vite.config.ts"
+
+# Check if vite package exists
+echo "📍 Checking Vite installation:"
+echo "Vite package exists: $([ -d "node_modules/vite" ] && echo "YES" || echo "NO")"
+echo "Vite binary exists: $([ -f "node_modules/.bin/vite" ] && echo "YES" || echo "NO")"
+ls -la node_modules/.bin/ | grep vite || echo "No vite binary found"
+
+# Method 1: Try with explicit config and force
+echo "Attempting build with explicit config..."
+if npx --yes vite@latest build --config ./vite.config.ts --mode production --force; then
+  echo "✅ Frontend build successful with explicit config"
+else
+  echo "❌ Explicit config failed, trying simplified approach..."
+  
+  # Method 2: Try with NODE_OPTIONS to increase module resolution
+  export NODE_OPTIONS="--max-old-space-size=4096"
+  
+  if NODE_PATH="$PWD/node_modules:$NODE_PATH" npx vite build --mode production; then
+    echo "✅ Frontend build successful with NODE_PATH"
+  else
+    echo "❌ NODE_PATH approach failed, trying direct node execution..."
+    
+    # Method 3: Try direct node execution
+    if [ -f "node_modules/vite/bin/vite.js" ]; then
+      node node_modules/vite/bin/vite.js build --mode production
+    else
+      echo "❌ All methods failed. Vite installation issue detected."
+      echo "📋 Debug info:"
+      echo "Working directory: $(pwd)"
+      echo "Node modules dir: $(ls -la node_modules/ | head -5)"
+      exit 1
+    fi
+  fi
+fi
 
 # Phase 6: Build backend
 echo ""

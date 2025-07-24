@@ -59,3 +59,21 @@ Backend: 55KB (built successfully)
 ```
 
 This enhanced script will handle the binary path issues you encountered on Render.
+
+## 🔧 LATEST FIX: Vite Config Resolution Error
+
+The new error you're seeing is a module resolution issue where Vite can't find itself. The enhanced script now includes:
+
+### Enhanced Module Resolution:
+- **Force Vite Reinstallation**: Ensures Vite is properly installed
+- **Node Modules Rebuild**: Reconstructs the dependency tree
+- **Multiple Execution Methods**: npx with explicit config, NODE_PATH resolution, direct node execution
+- **Better Environment Variables**: NODE_PATH and NODE_OPTIONS for improved resolution
+- **Debug Information**: Shows exactly what's available in node_modules
+
+### The script will now try these methods in order:
+1. `npx --yes vite@latest build --config ./vite.config.ts --mode production --force`
+2. `NODE_PATH="$PWD/node_modules" npx vite build --mode production`  
+3. `node node_modules/vite/bin/vite.js build --mode production`
+
+This should resolve the "Cannot find package 'vite'" error you encountered.
