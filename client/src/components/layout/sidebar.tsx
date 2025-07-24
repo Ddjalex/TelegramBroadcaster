@@ -8,14 +8,13 @@ import {
   Calendar, 
   Settings,
   Send as TelegramIcon,
-  LogOut
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+// Authentication removed - public access
 
 import { ConnectionStatus } from "@/components/ui/connection-status";
 import { RealTimeClock } from "@/components/ui/real-time-clock";
@@ -35,19 +34,6 @@ interface SidebarProps {
 
 export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
   const [location] = useLocation();
-  const { user } = useAuth();
-  
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-      return response.json();
-    },
-    onSuccess: () => {
-      window.location.href = "/login";
-    },
-  });
 
   const { data: userStats } = useQuery({
     queryKey: ["/api/users/stats"],
@@ -113,23 +99,14 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
         <div className="flex items-center space-x-3">
           <Avatar className="w-10 h-10">
             <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=40&h=40" />
-            <AvatarFallback>{user?.username?.slice(0, 2).toUpperCase() || 'AU'}</AvatarFallback>
+            <AvatarFallback>AD</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.username || 'Admin User'}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Admin Dashboard</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Online
+              Public Access
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => logoutMutation.mutate()}
-            disabled={logoutMutation.isPending}
-            className="text-gray-500 hover:text-red-600"
-          >
-            <LogOut size={16} />
-          </Button>
         </div>
       </div>
     </aside>

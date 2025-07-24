@@ -5,9 +5,9 @@ import { createServer, type Server } from "http";
 // import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { telegramService, setBroadcastFunction } from "./services/telegram";
-import { insertBroadcastSchema, insertScheduledMessageSchema, welcomeMessageSchema, loginSchema, changePasswordSchema } from "@shared/schema";
+import { insertBroadcastSchema, insertScheduledMessageSchema, welcomeMessageSchema } from "@shared/schema";
 import { z } from "zod";
-import { loginAdmin, changeAdminPassword, requireAuth, checkAuth } from "./auth";
+// Authentication imports removed - public access dashboard
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -53,73 +53,16 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Authentication routes
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      console.log('Login attempt:', { body: req.body, session: req.session });
-      const { username, password } = loginSchema.parse(req.body);
-      const result = await loginAdmin(username, password);
-      
-      console.log('Login result:', { success: result.success, error: result.error });
-      
-      if (result.success && result.admin) {
-        req.session.adminId = result.admin.id;
-        req.session.username = result.admin.username;
-        
-        // Save session explicitly
-        req.session.save((err) => {
-          if (err) {
-            console.error('Session save error:', err);
-            return res.status(500).json({ success: false, error: "Session error" });
-          }
-          res.json({ success: true, admin: result.admin });
-        });
-      } else {
-        res.status(401).json({ success: false, error: result.error || "Authentication failed" });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(400).json({ success: false, error: "Invalid request data" });
-    }
-  });
-
-  app.post('/api/auth/logout', (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        res.status(500).json({ success: false, error: "Failed to logout" });
-      } else {
-        res.json({ success: true });
-      }
-    });
-  });
-
+  // Authentication routes (removed - dashboard is now public)
   app.get('/api/auth/me', (req, res) => {
-    if (req.session.adminId) {
-      res.json({ 
-        authenticated: true, 
-        admin: { 
-          id: req.session.adminId, 
-          username: req.session.username 
-        } 
-      });
-    } else {
-      res.json({ authenticated: false });
-    }
-  });
-
-  app.post('/api/auth/change-password', requireAuth, async (req, res) => {
-    try {
-      const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
-      const result = await changeAdminPassword(req.session.username!, currentPassword, newPassword);
-      
-      if (result.success) {
-        res.json({ success: true });
-      } else {
-        res.status(400).json({ success: false, error: result.error });
-      }
-    } catch (error) {
-      res.status(400).json({ success: false, error: "Invalid request data" });
-    }
+    // Always return authenticated for public access
+    res.json({ 
+      authenticated: true, 
+      admin: { 
+        id: 1, 
+        username: 'public' 
+      } 
+    });
   });
 
   // Set up broadcast function for Telegram service
@@ -174,8 +117,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard stats (protected)
-  app.get("/api/dashboard/stats", requireAuth, async (req, res) => {
+  // Dashboard stats (public access)
+  app.get("/api/dashboard/stats", async (req, res) => {
     try {
       const stats = await storage.getDashboardStats();
       res.json(stats);
@@ -185,8 +128,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User management (protected)
-  app.get("/api/users", requireAuth, async (req, res) => {
+  // User management (public access)
+  app.get("/api/users", async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -196,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/stats", requireAuth, async (req, res) => {
+  app.get("/api/users/stats", async (req, res) => {
     try {
       const stats = await storage.getUserStats();
       res.json(stats);
@@ -206,8 +149,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User management endpoints (protected)
-  app.patch("/api/users/:id/status", requireAuth, async (req, res) => {
+  // User management endpoints (public access)
+  app.patch("/api/users/:id/status", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { isActive } = req.body;
@@ -231,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/users/:id", requireAuth, async (req, res) => {
+  app.delete("/api/users/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.removeUser(id);
@@ -249,8 +192,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Quick broadcast endpoint (protected)
-  app.post("/api/broadcasts/quick", requireAuth, async (req, res) => {
+  // Quick broadcast endpoint (public access)
+  app.post("/api/broadcasts/quick", async (req, res) => {
     try {
       const { message } = req.body;
       
@@ -303,8 +246,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Broadcast management (protected)
-  app.get("/api/broadcasts", requireAuth, async (req, res) => {
+  // Broadcast management (public access)
+  app.get("/api/broadcasts", async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       const broadcasts = limit ? await storage.getRecentBroadcasts(limit) : await storage.getAllBroadcasts();
@@ -315,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/broadcasts/:id", requireAuth, async (req, res) => {
+  app.get("/api/broadcasts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const broadcast = await storage.getBroadcast(id);
@@ -331,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/broadcasts", requireAuth, async (req, res) => {
+  app.post("/api/broadcasts", async (req, res) => {
     try {
       const validatedData = insertBroadcastSchema.parse(req.body);
       const broadcast = await storage.createBroadcast(validatedData);
@@ -345,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/broadcasts/:id/send", requireAuth, async (req, res) => {
+  app.post("/api/broadcasts/:id/send", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const broadcast = await storage.getBroadcast(id);
