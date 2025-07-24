@@ -157,8 +157,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBroadcast(insertBroadcast: InsertBroadcast): Promise<Broadcast> {
-    const [broadcast] = await db.insert(broadcasts).values(insertBroadcast).returning();
-    return broadcast;
+    try {
+      console.log('Storage: Creating broadcast with values:', insertBroadcast);
+      const [broadcast] = await db.insert(broadcasts).values(insertBroadcast).returning();
+      console.log('Storage: Successfully created broadcast:', broadcast);
+      return broadcast;
+    } catch (error) {
+      console.error('Storage: Database error creating broadcast:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        values: insertBroadcast
+      });
+      throw error;
+    }
   }
 
   async getBroadcast(id: number): Promise<Broadcast | undefined> {

@@ -34,11 +34,16 @@ echo "🗑️ Cleaning up old authentication tables..."
 cat > cleanup.sql << 'EOF'
 DROP TABLE IF EXISTS admin_credentials CASCADE;
 DROP TABLE IF EXISTS session CASCADE;
+-- Ensure proper table schema for broadcasts
+ALTER TABLE broadcasts ALTER COLUMN status SET DEFAULT 'draft';
+ALTER TABLE broadcasts ALTER COLUMN total_recipients SET DEFAULT 0;
+ALTER TABLE broadcasts ALTER COLUMN successful_deliveries SET DEFAULT 0;
+ALTER TABLE broadcasts ALTER COLUMN failed_deliveries SET DEFAULT 0;
 EOF
 
 # Apply cleanup if DATABASE_URL is available
 if [ -n "$DATABASE_URL" ]; then
-    echo "Applying database cleanup..."
+    echo "Applying database cleanup and schema fixes..."
     psql "$DATABASE_URL" -f cleanup.sql || echo "⚠️ Cleanup failed, continuing..."
     rm -f cleanup.sql
 fi

@@ -276,15 +276,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/broadcasts", async (req, res) => {
     try {
+      console.log('Creating broadcast with data:', req.body);
       const validatedData = insertBroadcastSchema.parse(req.body);
+      console.log('Validated broadcast data:', validatedData);
       const broadcast = await storage.createBroadcast(validatedData);
+      console.log('Created broadcast:', broadcast);
       res.status(201).json(broadcast);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Zod validation error:', error.errors);
         return res.status(400).json({ error: 'Invalid broadcast data', details: error.errors });
       }
-      console.error('Error creating broadcast:', error);
-      res.status(500).json({ error: 'Failed to create broadcast' });
+      console.error('Error creating broadcast (detailed):', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        error
+      });
+      res.status(500).json({ error: 'Failed to create broadcast', details: error instanceof Error ? error.message : String(error) });
     }
   });
 
