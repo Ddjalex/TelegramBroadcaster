@@ -56,17 +56,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post('/api/auth/login', async (req, res) => {
     try {
+      console.log('Login attempt:', { body: req.body, session: req.session });
       const { username, password } = loginSchema.parse(req.body);
       const result = await loginAdmin(username, password);
+      
+      console.log('Login result:', { success: result.success, error: result.error });
       
       if (result.success && result.admin) {
         req.session.adminId = result.admin.id;
         req.session.username = result.admin.username;
-        res.json({ success: true, admin: result.admin });
+        
+        // Save session explicitly
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ success: false, error: "Session error" });
+          }
+          res.json({ success: true, admin: result.admin });
+        });
       } else {
-        res.status(401).json({ success: false, error: result.error });
+        res.status(401).json({ success: false, error: result.error || "Authentication failed" });
       }
     } catch (error) {
+      console.error('Login error:', error);
       res.status(400).json({ success: false, error: "Invalid request data" });
     }
   });
