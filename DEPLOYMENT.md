@@ -39,7 +39,7 @@ RENDER_EXTERNAL_URL=https://your-service-name.onrender.com
 
 ### 3. Configure Build Settings
 ```
-Build Command: npm install && node build-production.js
+Build Command: npm install && node render-build.js
 Start Command: node start-production.js
 Node Version: 20.x
 ```
@@ -86,8 +86,9 @@ RENDER_EXTERNAL_URL = https://your-actual-service-name.onrender.com
 ### Build Fails
 - Check that Node.js version is 20.x or higher
 - Ensure all dependencies are in package.json
-- Use build command: `npm install && node build-production.js`
-- Verify all devDependencies are available during build
+- Use build command: `npm install && node render-build.js`
+- The new build script automatically installs dev dependencies needed for Vite/ESBuild
+- Fixed "Vite not found" error by ensuring proper dependency installation
 
 ### Application Crashes on Start
 - Check environment variables are set correctly

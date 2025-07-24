@@ -19,13 +19,24 @@ function runCommand(command, description) {
 
 async function main() {
   try {
-    // Ensure we have all dependencies
-    runCommand('npm ci --include=dev', 'Installing all dependencies');
+    // Ensure we have all dependencies including dev dependencies for build tools
+    runCommand('npm install --include=dev', 'Installing all dependencies');
+    
+    // Fix security vulnerabilities
+    console.log('🔧 Fixing security vulnerabilities...');
+    try {
+      runCommand('npm audit fix', 'Fixing non-breaking security issues');
+    } catch (error) {
+      console.log('⚠️  Some vulnerabilities require manual intervention - continuing with build');
+    }
+    
+    // Verify vite is available
+    runCommand('npx vite --version', 'Verifying Vite installation');
     
     // Build frontend with Vite
     runCommand('npx vite build', 'Building frontend with Vite');
     
-    // Build backend with esbuild
+    // Build backend with esbuild - using more robust path resolution
     const buildCommand = [
       'npx esbuild server/index.ts',
       '--platform=node',
@@ -33,13 +44,18 @@ async function main() {
       '--bundle',
       '--format=esm',
       '--outdir=dist',
-      '--alias:@shared=./shared'
+      '--tsconfig=tsconfig.json',
+      '--external:@neondatabase/serverless',
+      '--external:node-telegram-bot-api',
+      '--external:express',
+      '--external:ws',
+      '--resolve-extensions=.ts,.js,.mjs'
     ].join(' ');
     
     runCommand(buildCommand, 'Building backend with esbuild');
     
     console.log('🎉 Production build completed successfully!');
-    console.log('📁 Frontend built to: dist/client');
+    console.log('📁 Frontend built to: dist/public');
     console.log('📁 Backend built to: dist/index.js');
   } catch (error) {
     console.error('💥 Build process failed:', error);
