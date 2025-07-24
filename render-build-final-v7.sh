@@ -79,13 +79,12 @@ if [ -n "$DATABASE_URL" ]; then
   
   # Create initialization script
   cat > init-admin.js << 'EOF'
-import { neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import { Pool } from '@neondatabase/serverless';
-import { adminCredentials } from './shared/schema.js';
-import bcrypt from 'bcrypt';
-import { eq } from 'drizzle-orm';
-import ws from 'ws';
+const { neonConfig, Pool } = require('@neondatabase/serverless');
+const { drizzle } = require('drizzle-orm/neon-serverless');
+const { adminCredentials } = require('./shared/schema.js');
+const bcrypt = require('bcrypt');
+const { eq } = require('drizzle-orm');
+const ws = require('ws');
 
 neonConfig.webSocketConstructor = ws;
 
@@ -93,6 +92,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle({ client: pool, schema: { adminCredentials } });
 
 async function initializeAdmin() {
+  console.log('Database URL check:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
   try {
     console.log('Checking for existing admin user...');
     const existingAdmin = await db.select().from(adminCredentials).where(eq(adminCredentials.username, 'admin')).limit(1);
@@ -121,8 +121,8 @@ EOF
 
   # Run admin initialization
   echo "👤 Creating default admin user..."
-  node init-admin.js || echo "Admin user creation failed - may already exist"
-  rm init-admin.js
+  timeout 30 node init-admin.js || echo "Admin user creation failed or timed out - may already exist"
+  rm -f init-admin.js
 else
   echo "⚠️ DATABASE_URL not set in build environment - will initialize at runtime"
 fi
