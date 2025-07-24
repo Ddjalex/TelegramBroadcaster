@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import MemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDefaultAdmin } from "./auth";
@@ -9,16 +10,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || "fallback-secret-key",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  },
-}));
+const SessionStore = MemoryStore(session);
+app.use(
+  session({
+    store: new SessionStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    secret: process.env.SESSION_SECRET || "fallback-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -60,7 +67,7 @@ app.use((req, res, next) => {
       console.log('✅ Admin user initialized successfully');
       break;
     } catch (error) {
-      console.error(`❌ Admin initialization attempt ${i + 1} failed:`, error.message);
+      console.error(`❌ Admin initialization attempt ${i + 1} failed:`, (error as Error).message);
       if (i < 4) {
         const delay = Math.min(2000 * Math.pow(2, i), 10000); // Exponential backoff, max 10s
         console.log(`⏳ Retrying in ${delay/1000} seconds...`);
