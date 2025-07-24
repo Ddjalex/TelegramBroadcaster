@@ -1,51 +1,43 @@
-# CORRECT Render Environment Variables
+# CRITICAL: Render Deployment Configuration
 
-## What You Need to Fix
+## ⚠️ IMPORTANT: Your Render build command is WRONG
 
-Based on your screenshot, you have some incorrect variables. Here's what to do:
+Based on the error log you shared, Render is still using the old build command that fails with dependency conflicts.
 
-### DELETE These Variables (they're not needed):
-- ❌ BACKEND_URL 
-- ❌ JWT_SECRET
-- ❌ WEBHOOK_URL
-
-### KEEP These Variables (they're correct):
-- ✅ DATABASE_URL (your PostgreSQL connection)
-- ✅ TELEGRAM_BOT_TOKEN (your bot token)
-
-### ADD These Missing Variables:
-- ➕ NODE_ENV
-- ➕ PORT  
-- ➕ RENDER_EXTERNAL_URL
-
-## Final Correct Setup
-
-Your Render environment should have exactly these 5 variables:
-
+### ❌ Current (Broken) Render Settings:
 ```
-DATABASE_URL = postgresql://telegram_broadcaster_db_user:WLj0l*AGkPGdaMSsP4kSRhYxJuoIm6dq@dpg-ct6h2v68ii6s73fv0n1g-a.oregon-postgres.render.com/telegram_broadcaster_db
-
-TELEGRAM_BOT_TOKEN = 7781035003:AAHyM8Xi_kOq0MFMdXwfLozA-LIKCA-VqhY
-
-NODE_ENV = production
-
-PORT = 10000
-
-RENDER_EXTERNAL_URL = https://telegrambroadcaster-ke1b.onrender.com
+Build Command: npm install && npm run build
 ```
 
-## Steps to Fix:
+### ✅ CORRECT Render Settings:
+```
+Build Command: chmod +x render-build-final.sh && ./render-build-final.sh
+Start Command: node start-production.js
+Node Version: 20.x
+```
 
-1. **Delete** BACKEND_URL, JWT_SECRET, and WEBHOOK_URL
-2. **Add** NODE_ENV = production
-3. **Add** PORT = 10000  
-4. **Add** RENDER_EXTERNAL_URL = https://telegrambroadcaster-ke1b.onrender.com
-5. **Redeploy** your service
+## How to Fix in Render:
 
-## Why These Changes Matter:
+1. **Go to your Render service dashboard**
+2. **Click "Settings" tab**
+3. **Update Build Command to**: `chmod +x render-build-final.sh && ./render-build-final.sh`
+4. **Save changes**
+5. **Trigger manual deploy**
 
-- **NODE_ENV=production** - Enables production mode and webhook handling
-- **PORT=10000** - Required port for Render deployment
-- **RENDER_EXTERNAL_URL** - Needed for proper webhook configuration
-- **Removing JWT_SECRET** - Not used in this application (no authentication)
-- **Removing WEBHOOK_URL** - Application handles this automatically
+## Why This Fixes the Error:
+
+The error you're seeing happens because:
+- `npm install` has dependency conflicts (Vite 7.0.6 vs @types/node versions)
+- Our bash script uses `--legacy-peer-deps` to bypass these conflicts
+- The bash script installs missing build tools automatically
+
+## Verification:
+
+After updating the build command, you should see this in Render logs:
+```
+✅ BUILD COMPLETED SUCCESSFULLY!
+Frontend: dist/public/
+Backend: dist/index.js
+```
+
+Instead of the ERESOLVE errors you're currently getting.

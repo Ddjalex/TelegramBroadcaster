@@ -1,0 +1,50 @@
+==> Cloning from https://github.com/Ddjalex/TelegramBroadcaster
+==> Checking out commit 1ba4e1e628a753f7ba3041b636ff735df3458cbb in branch main
+==> Downloading cache...
+==> Transferred 223MB in 8s. Extraction took 12s.
+==> Using Node.js version 22.16.0 (default)
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Using Bun version 1.1.0 (default)
+==> Docs on specifying a Bun version: https://render.com/docs/bun-version
+==> Running build command 'npm install && npm run build'...
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: vite@7.0.6
+npm error Found: @types/node@20.16.11
+npm error node_modules/@types/node
+npm error   dev @types/node@"20.16.11" from the root project
+npm error   @types/node@"*" from @types/bcrypt@6.0.0
+npm error   node_modules/@types/bcrypt
+npm error     @types/bcrypt@"^6.0.0" from the root project
+npm error   9 more (@types/body-parser, @types/connect, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.0.6
+npm error node_modules/vite
+npm error   dev vite@"^7.0.6" from the root project
+npm error   peer vite@"^5.2.0 || ^6 || ^7" from @tailwindcss/vite@4.1.11
+npm error   node_modules/@tailwindcss/vite
+npm error     dev @tailwindcss/vite@"^4.1.3" from the root project
+npm error   1 more (@vitejs/plugin-react)
+npm error
+npm error Conflicting peer dependency: @types/node@24.1.0
+npm error node_modules/@types/node
+npm error   peerOptional @types/node@"^20.19.0 || >=22.12.0" from vite@7.0.6
+npm error   node_modules/vite
+npm error     dev vite@"^7.0.6" from the root project
+npm error     peer vite@"^5.2.0 || ^6 || ^7" from @tailwindcss/vite@4.1.11
+npm error     node_modules/@tailwindcss/vite
+npm error       dev @tailwindcss/vite@"^4.1.3" from the root project
+npm error     1 more (@vitejs/plugin-react)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /opt/render/.cache/_logs/2025-07-24T07_33_13_181Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /opt/render/.cache/_logs/2025-07-24T07_33_13_181Z-debug-0.log
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
