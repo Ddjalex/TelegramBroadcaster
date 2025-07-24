@@ -17,7 +17,28 @@ echo ""
 echo "📦 PHASE 2: Single comprehensive dependency installation"
 
 # Install ALL dependencies (dev + production) in one command to prevent conflicts
-npm install --legacy-peer-deps --include=dev --no-audit
+npm install --legacy-peer-deps --include=dev --no-audit --verbose
+
+# Force install critical packages if they're missing
+if ! node -e "require('vite')" 2>/dev/null; then
+  echo "Force installing vite..."
+  npm install vite@7.0.6 --save-dev --legacy-peer-deps --no-audit
+fi
+
+if ! node -e "require('tailwindcss')" 2>/dev/null; then
+  echo "Force installing tailwindcss..."
+  npm install tailwindcss@3.4.17 --save-dev --legacy-peer-deps --no-audit
+fi
+
+if ! node -e "require('postcss')" 2>/dev/null; then
+  echo "Force installing postcss..."
+  npm install postcss@8.4.47 --save-dev --legacy-peer-deps --no-audit
+fi
+
+if ! node -e "require('autoprefixer')" 2>/dev/null; then
+  echo "Force installing autoprefixer..."
+  npm install autoprefixer@10.4.20 --save-dev --legacy-peer-deps --no-audit
+fi
 
 echo "✅ All dependencies installed successfully"
 
