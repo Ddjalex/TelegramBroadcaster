@@ -606,7 +606,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Telegram webhook endpoint for production
+  app.post("/api/telegram/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+      if (process.env.NODE_ENV !== 'production') {
+        return res.status(404).json({ error: 'Webhook only available in production' });
+      }
 
+      const update = JSON.parse(req.body.toString());
+      
+      // Process the webhook update
+      if (update.message) {
+        await telegramService.handleWebhookUpdate(update);
+      }
+      
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      res.status(500).json({ error: 'Webhook processing failed' });
+    }
+  });
 
   const httpServer = createServer(app);
   

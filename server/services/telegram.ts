@@ -36,10 +36,15 @@ class TelegramService {
     try {
       // Set up webhook if running in production, otherwise use polling
       if (process.env.NODE_ENV === 'production') {
-        const webhookUrl = process.env.WEBHOOK_URL || `${process.env.REPLIT_DOMAINS?.split(',')[0]}/api/telegram/webhook`;
+        // For Render deployment, construct webhook URL from Render service URL
+        const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL || `https://${process.env.RENDER_SERVICE_NAME}.onrender.com`;
+        const webhookUrl = `${baseUrl}/api/telegram/webhook`;
+        console.log('Setting up webhook for production:', webhookUrl);
         await this.bot.setWebHook(webhookUrl);
+        console.log('Webhook set successfully');
       } else {
         await this.bot.startPolling();
+        console.log('Bot polling started for development');
       }
 
       this.setupCommands();
