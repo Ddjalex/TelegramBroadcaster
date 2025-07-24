@@ -38,19 +38,30 @@ if [ ! -f "./node_modules/.bin/esbuild" ]; then
   npm install esbuild@latest --save-dev --legacy-peer-deps --no-audit
 fi
 
-# Verify build tools
-echo "Vite version: $(./node_modules/.bin/vite --version)"
-echo "ESBuild version: $(./node_modules/.bin/esbuild --version)"
+# Verify build tools (use npx as fallback)
+echo "Vite version: $(./node_modules/.bin/vite --version 2>/dev/null || npx vite --version 2>/dev/null || echo 'not found')"
+echo "ESBuild version: $(./node_modules/.bin/esbuild --version 2>/dev/null || npx esbuild --version 2>/dev/null || echo 'not found')"
 
 # Phase 5: Build frontend
 echo ""
 echo "🏗️ PHASE 5: Building frontend"
-./node_modules/.bin/vite build --mode production
+# Try direct binary first, then npx as fallback
+./node_modules/.bin/vite build --mode production 2>/dev/null || npx vite build --mode production
 
 # Phase 6: Build backend
 echo ""
 echo "⚡ PHASE 6: Building backend"
+# Try direct binary first, then npx as fallback
 ./node_modules/.bin/esbuild server/index.ts \
+  --bundle \
+  --platform=node \
+  --format=esm \
+  --outdir=dist \
+  --packages=external \
+  --target=node20 \
+  --tsconfig=tsconfig.json \
+  2>/dev/null || \
+npx esbuild server/index.ts \
   --bundle \
   --platform=node \
   --format=esm \
