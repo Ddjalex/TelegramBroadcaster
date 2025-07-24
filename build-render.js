@@ -1,9 +1,25 @@
 #!/usr/bin/env node
-import { build } from 'vite';
-import { build as esbuild } from 'esbuild';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+
+// Dynamic imports to handle cases where packages might not be available
+let vite, esbuild;
+try {
+  const viteModule = await import('vite');
+  vite = viteModule.build;
+} catch (error) {
+  console.error('❌ Vite not found. Make sure it is installed.');
+  process.exit(1);
+}
+
+try {
+  const esbuildModule = await import('esbuild');
+  esbuild = esbuildModule.build;
+} catch (error) {
+  console.error('❌ ESBuild not found. Make sure it is installed.');
+  process.exit(1);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,7 +40,7 @@ const sharedPlugin = {
 async function buildFrontend() {
   console.log('📦 Building frontend with Vite...');
   try {
-    await build({
+    await vite({
       configFile: resolve(__dirname, 'vite.config.ts'),
     });
     console.log('✅ Frontend build completed');

@@ -39,7 +39,7 @@ RENDER_EXTERNAL_URL=https://your-service-name.onrender.com
 
 ### 3. Configure Build Settings
 ```
-Build Command: npm install && npm run build
+Build Command: npm install && node build-production.js
 Start Command: node start-production.js
 Node Version: 20.x
 ```
@@ -86,7 +86,8 @@ RENDER_EXTERNAL_URL = https://your-actual-service-name.onrender.com
 ### Build Fails
 - Check that Node.js version is 20.x or higher
 - Ensure all dependencies are in package.json
-- Verify the build command includes both frontend and backend builds
+- Use build command: `npm install && node build-production.js`
+- Verify all devDependencies are available during build
 
 ### Application Crashes on Start
 - Check environment variables are set correctly
