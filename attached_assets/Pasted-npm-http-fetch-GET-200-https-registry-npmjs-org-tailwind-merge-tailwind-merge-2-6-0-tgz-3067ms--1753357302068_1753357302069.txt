@@ -1,0 +1,197 @@
+npm http fetch GET 200 https://registry.npmjs.org/tailwind-merge/-/tailwind-merge-2.6.0.tgz 3067ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.29.tgz 3055ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/postcss-selector-parser/-/postcss-selector-parser-6.1.2.tgz 3052ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tsx/-/tsx-4.20.3.tgz 3102ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/motion-dom/-/motion-dom-11.18.1.tgz 3155ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/generator/-/generator-7.28.0.tgz 3122ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/lru-cache/-/lru-cache-10.4.3.tgz 3130ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/esbuild 2960ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.1.11.tgz 3163ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/mkdirp/-/mkdirp-3.0.1.tgz 3163ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.1.11.tgz 3170ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.4.21.tgz 3204ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/traverse/-/traverse-7.28.0.tgz 3232ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/rollup/-/rollup-4.45.1.tgz 3353ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/react-resizable-panels/-/react-resizable-panels-2.1.9.tgz 3240ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/resolve/-/resolve-1.22.10.tgz 3355ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/embla-carousel/-/embla-carousel-8.6.0.tgz 3291ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.45.1.tgz 3392ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/parser/-/parser-7.28.0.tgz 3290ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/jiti/-/jiti-2.5.0.tgz 3297ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/bcrypt/-/bcrypt-6.0.0.tgz 3351ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@esbuild-kit%2fcore-utils 146ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz 3375ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/type/-/type-2.7.3.tgz 3458ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/jose/-/jose-6.0.12.tgz 3496ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tldts/-/tldts-6.1.86.tgz 3539ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.2.tgz 3539ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/core/-/core-7.28.0.tgz 3488ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/vite/-/vite-7.0.6.tgz 3505ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-gnu/-/oxide-linux-x64-gnu-4.1.11.tgz 3522ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@esbuild-kit%2fesm-loader 136ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@types/node/-/node-20.16.11.tgz 3595ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz 3738ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/sucrase/-/sucrase-3.35.0.tgz 3784ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.61.0.tgz 3723ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/helpers/-/helpers-7.28.2.tgz 3751ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/yaml/-/yaml-2.8.0.tgz 3841ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tar/-/tar-7.4.3.tgz 3815ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz 3844ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/victory-vendor/-/victory-vendor-36.9.2.tgz 3959ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/drizzle-kit 351ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@babel/types/-/types-7.28.2.tgz 4017ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/react-day-picker/-/react-day-picker-8.10.1.tgz 4099ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.83.0.tgz 4139ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/es5-ext/-/es5-ext-0.10.64.tgz 4229ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.83.0.tgz 4169ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/drizzle-kit/-/drizzle-kit-0.31.4.tgz 4179ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.30.1.tgz 4349ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.4.17.tgz 4389ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.18.20.tgz 4414ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@hookform/resolvers/-/resolvers-3.10.0.tgz 4430ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/recharts/-/recharts-2.15.4.tgz 4453ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.25.8.tgz 4516ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/framer-motion/-/framer-motion-11.18.2.tgz 4513ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/zod/-/zod-3.25.76.tgz 4650ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001727.tgz 4705ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz 4782ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/typescript/-/typescript-5.6.3.tgz 4983ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/es-abstract/-/es-abstract-1.24.0.tgz 5461ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/drizzle-orm/-/drizzle-orm-0.39.3.tgz 5528ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/lucide-react/-/lucide-react-0.453.0.tgz 6018ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/react-icons/-/react-icons-5.5.0.tgz 6175ms (cache miss)
+npm http fetch GET 200 https://registry.npmjs.org/date-fns/-/date-fns-3.6.0.tgz 6242ms (cache miss)
+npm info run bcrypt@6.0.0 install node_modules/bcrypt node-gyp-build
+npm info run bcrypt@6.0.0 install { code: 0, signal: null }
+npm info run bufferutil@4.0.9 install node_modules/bufferutil node-gyp-build
+npm info run bufferutil@4.0.9 install { code: 0, signal: null }
+npm info run @tailwindcss/oxide@4.1.11 postinstall node_modules/@tailwindcss/oxide node ./scripts/install.js
+npm info run @tailwindcss/oxide@4.1.11 postinstall { code: 0, signal: null }
+npm info run es5-ext@0.10.64 postinstall node_modules/es5-ext  node -e "try{require('./_postinstall')}catch(e){}" || exit 0
+npm info run es5-ext@0.10.64 postinstall { code: 0, signal: null }
+npm info run esbuild@0.25.8 postinstall node_modules/esbuild node install.js
+npm info run esbuild@0.25.8 postinstall { code: 0, signal: null }
+npm info run esbuild@0.18.20 postinstall node_modules/@esbuild-kit/core-utils/node_modules/esbuild node install.js
+npm info run esbuild@0.18.20 postinstall { code: 0, signal: null }
+added 658 packages, and audited 659 packages in 45s
+132 packages are looking for funding
+  run `npm fund` for details
+4 moderate severity vulnerabilities
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+npm verbose cwd /opt/render/project/src
+npm verbose os Linux 6.8.0-1032-aws
+npm verbose node v22.16.0
+npm verbose npm  v10.9.2
+npm verbose exit 0
+npm info ok
+📦 PHASE 2.1: Installing critical build dependencies
+removed 98 packages, and changed 2 packages in 2s
+90 packages are looking for funding
+  run `npm fund` for details
+📦 PHASE 2.2: Rebuilding node_modules structure
+added 1 package, removed 1 package, changed 1 package, and audited 451 packages in 2s
+90 packages are looking for funding
+  run `npm fund` for details
+found 0 vulnerabilities
+rebuilt dependencies successfully
+📦 PHASE 2.3: Verifying critical dependencies
+tailwindcss: rest-express@1.0.0 /opt/render/project/src
+└── (empty)
+missing
+vite: rest-express@1.0.0 /opt/render/project/src
+└── (empty)
+missing
+postcss: rest-express@1.0.0 /opt/render/project/src
+└── (empty)
+missing
+🔒 PHASE 3: Security fixes
+added 19 packages, and audited 470 packages in 2s
+91 packages are looking for funding
+  run `npm fund` for details
+# npm audit report
+form-data  <2.5.4
+Severity: critical
+form-data uses unsafe random function in form-data for choosing boundary - https://github.com/advisories/GHSA-fjxv-7rqg-78g4
+fix available via `npm audit fix --force`
+Will install node-telegram-bot-api@0.63.0, which is a breaking change
+node_modules/request/node_modules/form-data
+  request  *
+  Depends on vulnerable versions of form-data
+  Depends on vulnerable versions of tough-cookie
+  node_modules/request
+    request-promise-core  *
+    Depends on vulnerable versions of request
+    node_modules/request-promise-core
+      @cypress/request-promise  *
+      Depends on vulnerable versions of request-promise-core
+      node_modules/@cypress/request-promise
+        node-telegram-bot-api  >=0.64.0
+        Depends on vulnerable versions of @cypress/request-promise
+        node_modules/node-telegram-bot-api
+tough-cookie  <4.1.3
+Severity: moderate
+tough-cookie Prototype Pollution vulnerability - https://github.com/advisories/GHSA-72xf-g2v4-qvf3
+fix available via `npm audit fix --force`
+Will install node-telegram-bot-api@0.63.0, which is a breaking change
+node_modules/request/node_modules/tough-cookie
+6 vulnerabilities (4 moderate, 2 critical)
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Security fixes completed with warnings
+🔧 PHASE 4: Ensuring build tools
+Installing Vite directly...
+removed 15 packages in 1s
+90 packages are looking for funding
+  run `npm fund` for details
+Installing ESBuild directly...
+up to date in 799ms
+90 packages are looking for funding
+  run `npm fund` for details
+Vite version: vite/7.0.6 linux-x64 node-v22.16.0
+ESBuild version: 0.25.8
+🏗️ PHASE 5: Building frontend
+📍 Checking Vite installation:
+Vite package exists: NO
+Vite binary exists: NO
+No vite binary found
+Attempting build with local vite installation...
+failed to load config from /opt/render/project/src/vite.config.production.js
+error during build:
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /opt/render/project/src/node_modules/.vite-temp/vite.config.production.js.timestamp-1753357270720-033998db446bc.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:137:49)
+❌ Production config failed, trying without config...
+Attempting build without config file...
+vite v7.0.6 building for production...
+(!) outDir /opt/render/project/src/dist/public is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+transforming...
+✓ 3 modules transformed.
+✗ Build failed in 55ms
+error during build:
+[vite:css] Failed to load PostCSS config (searchPath: /opt/render/project/src/client): [Error] Loading PostCSS Plugin failed: Cannot find module 'tailwindcss'
+Require stack:
+- /opt/render/project/src/postcss.config.js
+(@/opt/render/project/src/postcss.config.js)
+Error: Loading PostCSS Plugin failed: Cannot find module 'tailwindcss'
+Require stack:
+- /opt/render/project/src/postcss.config.js
+(@/opt/render/project/src/postcss.config.js)
+    at load$1 (file:///opt/render/.cache/_npx/b6bf845de680c6b6/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:8761:10)
+    at async Promise.all (index 0)
+    at async plugins (file:///opt/render/.cache/_npx/b6bf845de680c6b6/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:8783:11)
+    at async processResult (file:///opt/render/.cache/_npx/b6bf845de680c6b6/node_modules/vite/dist/node/chunks/dep-BHkUv4Z8.js:8822:13)
+file: /opt/render/project/src/client/src/index.css
+❌ No-config approach failed, trying manual build...
+Attempting manual build process...
+❌ All build methods failed
+==> Build failed 😞
