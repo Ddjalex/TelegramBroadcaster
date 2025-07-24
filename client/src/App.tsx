@@ -4,33 +4,17 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/layout/sidebar";
-import { useAuth } from "@/hooks/useAuth";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import Dashboard from "@/pages/dashboard";
 import Compose from "@/pages/compose";
 import Users from "@/pages/users";
 import History from "@/pages/history";
 import ScheduledPage from "@/pages/scheduled";
 import Settings from "@/pages/settings";
-import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
   // WebSocket is disabled, so connection is always false
   const isConnected = false;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Login />;
-  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">

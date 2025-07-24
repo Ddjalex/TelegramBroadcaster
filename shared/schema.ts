@@ -58,14 +58,7 @@ export const scheduledMessages = pgTable("scheduled_messages", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const adminCredentials = pgTable("admin_credentials", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
-  lastLoginAt: timestamp("last_login_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -122,13 +115,6 @@ export const insertScheduledMessageSchema = createInsertSchema(scheduledMessages
   updatedAt: true,
 });
 
-export const insertAdminCredentialSchema = createInsertSchema(adminCredentials).omit({
-  id: true,
-  lastLoginAt: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 // Welcome message schema
 export const welcomeMessageSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
@@ -137,15 +123,7 @@ export const welcomeMessageSchema = z.object({
   imageUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
-// Password change schema
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "New password must be at least 6 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your new password"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -158,7 +136,4 @@ export type BotSetting = typeof botSettings.$inferSelect;
 export type InsertBotSetting = z.infer<typeof insertBotSettingSchema>;
 export type ScheduledMessage = typeof scheduledMessages.$inferSelect;
 export type InsertScheduledMessage = z.infer<typeof insertScheduledMessageSchema>;
-export type AdminCredential = typeof adminCredentials.$inferSelect;
-export type InsertAdminCredential = z.infer<typeof insertAdminCredentialSchema>;
-export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type WelcomeMessage = z.infer<typeof welcomeMessageSchema>;

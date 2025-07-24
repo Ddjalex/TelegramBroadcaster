@@ -6,15 +6,14 @@ import {
   Users, 
   History, 
   Calendar, 
-  Settings, 
-  LogOut,
+  Settings,
   Send as TelegramIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
+
 import { ConnectionStatus } from "@/components/ui/connection-status";
 import { RealTimeClock } from "@/components/ui/real-time-clock";
 
@@ -33,7 +32,6 @@ interface SidebarProps {
 
 export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
   const [location] = useLocation();
-  const { logout } = useAuth();
 
   const { data: userStats } = useQuery({
     queryKey: ["/api/users/stats"],
@@ -107,14 +105,7 @@ export function Sidebar({ isWebSocketConnected = false }: SidebarProps) {
               Online
             </p>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-gray-400 hover:text-gray-600"
-            onClick={logout}
-          >
-            <LogOut size={16} />
-          </Button>
+
         </div>
       </div>
     </aside>

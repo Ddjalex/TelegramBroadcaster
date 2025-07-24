@@ -3,10 +3,9 @@ import express from "express";
 import { createServer, type Server } from "http";
 // WebSocket imports disabled for Replit compatibility
 // import { WebSocketServer, WebSocket } from "ws";
-import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { telegramService, setBroadcastFunction } from "./services/telegram";
-import { insertBroadcastSchema, insertScheduledMessageSchema, changePasswordSchema, welcomeMessageSchema } from "@shared/schema";
+import { insertBroadcastSchema, insertScheduledMessageSchema, welcomeMessageSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from 'multer';
 import path from 'path';
@@ -22,24 +21,7 @@ function broadcastToClients(data: any) {
   console.log('Broadcast notification:', data.type);
 }
 
-// Initialize default admin if none exists
-async function initializeDefaultAdmin() {
-  try {
-    const existingAdmin = await storage.getAdminByUsername('admin');
-    if (!existingAdmin) {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash('admin123', saltRounds);
-      await storage.createAdmin({
-        username: 'admin',
-        passwordHash: hashedPassword
-      });
-      console.log('Default admin created with username: admin, password: admin123');
-      console.log('SECURITY WARNING: Please change the default password immediately!');
-    }
-  } catch (error) {
-    console.error('Error initializing default admin:', error);
-  }
-}
+
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -80,8 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize Telegram service:', error);
   }
 
-  // Initialize default admin
-  await initializeDefaultAdmin();
+
 
   // Serve uploaded images statically
   app.use('/uploads', express.static(uploadsDir));
@@ -110,74 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Secure admin authentication
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      
-      if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password are required' });
-      }
 
-      const admin = await storage.getAdminByUsername(username);
-      if (!admin) {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
-      if (!isPasswordValid) {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-
-      // Update last login time
-      await storage.updateAdminLastLogin(username);
-      
-      res.json({ success: true, message: 'Login successful' });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-  });
-
-  // Change admin password
-  app.post("/api/auth/change-password", async (req, res) => {
-    try {
-      const result = changePasswordSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Validation error',
-          errors: result.error.flatten().fieldErrors
-        });
-      }
-
-      const { currentPassword, newPassword } = result.data;
-      const username = 'admin'; // For now, assuming single admin user
-
-      const admin = await storage.getAdminByUsername(username);
-      if (!admin) {
-        return res.status(404).json({ success: false, message: 'Admin not found' });
-      }
-
-      // Verify current password
-      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, admin.passwordHash);
-      if (!isCurrentPasswordValid) {
-        return res.status(401).json({ success: false, message: 'Current password is incorrect' });
-      }
-
-      // Hash new password
-      const saltRounds = 10;
-      const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-
-      // Update password
-      await storage.updateAdminPassword(username, hashedNewPassword);
-
-      res.json({ success: true, message: 'Password changed successfully' });
-    } catch (error) {
-      console.error('Password change error:', error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-  });
 
   // Telegram webhook endpoint
   app.post("/api/telegram/webhook", async (req, res) => {
