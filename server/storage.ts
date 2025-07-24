@@ -166,9 +166,18 @@ export class DatabaseStorage implements IStorage {
       console.error('Storage: Database error creating broadcast:', {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
-        values: insertBroadcast
+        name: error instanceof Error ? error.name : 'Unknown',
+        code: (error as any)?.code,
+        detail: (error as any)?.detail,
+        constraint: (error as any)?.constraint,
+        values: insertBroadcast,
+        timestamp: new Date().toISOString()
       });
-      throw error;
+      
+      // Create more informative error for production debugging
+      const enhancedError = new Error(`Database error: ${error instanceof Error ? error.message : String(error)}`);
+      enhancedError.cause = error;
+      throw enhancedError;
     }
   }
 

@@ -290,9 +290,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error creating broadcast (detailed):', {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
-        error
+        name: error instanceof Error ? error.name : 'Unknown',
+        cause: error instanceof Error ? error.cause : undefined,
+        fullError: error
       });
-      res.status(500).json({ error: 'Failed to create broadcast', details: error instanceof Error ? error.message : String(error) });
+      
+      // Return more detailed error information
+      const errorDetails = error instanceof Error ? {
+        message: error.message,
+        name: error.name,
+        cause: error.cause
+      } : { message: String(error) };
+      
+      res.status(500).json({ 
+        error: 'Failed to create broadcast', 
+        details: errorDetails,
+        timestamp: new Date().toISOString()
+      });
     }
   });
 

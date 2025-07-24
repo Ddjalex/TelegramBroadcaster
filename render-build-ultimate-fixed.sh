@@ -35,10 +35,28 @@ cat > cleanup.sql << 'EOF'
 DROP TABLE IF EXISTS admin_credentials CASCADE;
 DROP TABLE IF EXISTS session CASCADE;
 -- Ensure proper table schema for broadcasts
-ALTER TABLE broadcasts ALTER COLUMN status SET DEFAULT 'draft';
-ALTER TABLE broadcasts ALTER COLUMN total_recipients SET DEFAULT 0;
-ALTER TABLE broadcasts ALTER COLUMN successful_deliveries SET DEFAULT 0;
-ALTER TABLE broadcasts ALTER COLUMN failed_deliveries SET DEFAULT 0;
+DO $$ 
+BEGIN 
+    -- Check if broadcasts table exists and fix schema
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'broadcasts') THEN
+        -- Fix column defaults
+        ALTER TABLE broadcasts ALTER COLUMN status SET DEFAULT 'draft';
+        ALTER TABLE broadcasts ALTER COLUMN total_recipients SET DEFAULT 0;
+        ALTER TABLE broadcasts ALTER COLUMN successful_deliveries SET DEFAULT 0;
+        ALTER TABLE broadcasts ALTER COLUMN failed_deliveries SET DEFAULT 0;
+        
+        -- Ensure NOT NULL constraints are properly set
+        ALTER TABLE broadcasts ALTER COLUMN title SET NOT NULL;
+        ALTER TABLE broadcasts ALTER COLUMN message SET NOT NULL;
+        ALTER TABLE broadcasts ALTER COLUMN status SET NOT NULL;
+        
+        -- Update any existing records with NULL values
+        UPDATE broadcasts SET status = 'draft' WHERE status IS NULL;
+        UPDATE broadcasts SET total_recipients = 0 WHERE total_recipients IS NULL;
+        UPDATE broadcasts SET successful_deliveries = 0 WHERE successful_deliveries IS NULL;
+        UPDATE broadcasts SET failed_deliveries = 0 WHERE failed_deliveries IS NULL;
+    END IF;
+END $$;
 EOF
 
 # Apply cleanup if DATABASE_URL is available
