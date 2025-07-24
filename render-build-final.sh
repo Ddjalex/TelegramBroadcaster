@@ -17,14 +17,30 @@ echo ""
 echo "📦 PHASE 2: Installing dependencies"
 npm install --legacy-peer-deps --include=dev --verbose
 
-# Ensure vite is properly installed in node_modules
-echo "📦 PHASE 2.1: Ensuring Vite installation"
-npm install vite@latest @vitejs/plugin-react@latest --save-dev --legacy-peer-deps --no-audit
+# Ensure critical build dependencies are installed
+echo "📦 PHASE 2.1: Installing critical build dependencies"
+npm install \
+  vite@latest \
+  @vitejs/plugin-react@latest \
+  tailwindcss@latest \
+  autoprefixer@latest \
+  postcss@latest \
+  esbuild@latest \
+  tsx@latest \
+  drizzle-kit@latest \
+  typescript@latest \
+  --save-dev --legacy-peer-deps --no-audit
 
-# Additional step: Ensure all vite-related packages are properly linked
+# Additional step: Ensure all packages are properly linked
 echo "📦 PHASE 2.2: Rebuilding node_modules structure"
 npm dedupe --legacy-peer-deps || true
 npm rebuild --legacy-peer-deps || true
+
+# Verify critical dependencies
+echo "📦 PHASE 2.3: Verifying critical dependencies"
+echo "tailwindcss: $(npm list tailwindcss --depth=0 2>/dev/null || echo 'missing')"
+echo "vite: $(npm list vite --depth=0 2>/dev/null || echo 'missing')"
+echo "postcss: $(npm list postcss --depth=0 2>/dev/null || echo 'missing')"
 
 # Phase 3: Force fix security (optional)
 echo ""
@@ -69,13 +85,10 @@ echo "Vite package exists: $([ -d "node_modules/vite" ] && echo "YES" || echo "N
 echo "Vite binary exists: $([ -f "node_modules/.bin/vite" ] && echo "YES" || echo "NO")"
 ls -la node_modules/.bin/ | grep vite || echo "No vite binary found"
 
-# Method 1: Temporarily rename problematic config and use production config
-echo "Attempting build with simplified production config..."
-mv vite.config.ts vite.config.ts.backup 2>/dev/null || true
-if npx --yes vite@latest build --config ./vite.config.production.js --mode production; then
+# Method 1: Use local installed vite with production config
+echo "Attempting build with local vite installation..."
+if ./node_modules/.bin/vite build --config ./vite.config.production.js --mode production 2>/dev/null || npx vite build --config ./vite.config.production.js --mode production; then
   echo "✅ Frontend build successful with production config"
-  # Restore original config for development
-  mv vite.config.ts.backup vite.config.ts 2>/dev/null || true
 else
   echo "❌ Production config failed, trying without config..."
   # Restore original config
