@@ -69,22 +69,37 @@ echo "Vite package exists: $([ -d "node_modules/vite" ] && echo "YES" || echo "N
 echo "Vite binary exists: $([ -f "node_modules/.bin/vite" ] && echo "YES" || echo "NO")"
 ls -la node_modules/.bin/ | grep vite || echo "No vite binary found"
 
-# Method 1: Try with simplified production config
+# Method 1: Temporarily rename problematic config and use production config
 echo "Attempting build with simplified production config..."
+mv vite.config.ts vite.config.ts.backup 2>/dev/null || true
 if npx --yes vite@latest build --config ./vite.config.production.js --mode production; then
   echo "✅ Frontend build successful with production config"
+  # Restore original config for development
+  mv vite.config.ts.backup vite.config.ts 2>/dev/null || true
 else
   echo "❌ Production config failed, trying without config..."
+  # Restore original config
+  mv vite.config.ts.backup vite.config.ts 2>/dev/null || true
   
   # Method 2: Try building without any config file (use defaults)
   echo "Attempting build without config file..."
+  # Remove ALL config files temporarily
+  mv vite.config.ts vite.config.ts.backup2 2>/dev/null || true
+  mv vite.config.production.js vite.config.production.js.backup 2>/dev/null || true
+  
   cd client
   if npx --yes vite@latest build --mode production --outDir ../dist/public; then
     echo "✅ Frontend build successful without config"
     cd ..
+    # Restore configs
+    mv ../vite.config.ts.backup2 ../vite.config.ts 2>/dev/null || true
+    mv ../vite.config.production.js.backup ../vite.config.production.js 2>/dev/null || true
   else
     cd ..
     echo "❌ No-config approach failed, trying manual build..."
+    # Restore configs
+    mv vite.config.ts.backup2 vite.config.ts 2>/dev/null || true
+    mv vite.config.production.js.backup vite.config.production.js 2>/dev/null || true
     
     # Method 3: Manual build approach
     echo "Attempting manual build process..."
