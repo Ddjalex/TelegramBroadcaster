@@ -137,12 +137,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            <p>Default credentials:</p>
-            <p><strong>Username:</strong> admin</p>
-            <p><strong>Password:</strong> admin123</p>
-          </div>
         </CardContent>
       </Card>
     </div>
