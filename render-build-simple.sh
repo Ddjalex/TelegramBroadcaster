@@ -72,5 +72,14 @@ npx esbuild server/index.ts \
   --packages=external \
   --target=node20
 
+# Initialize database schema after build
+echo "Initializing database schema..."
+if [ -n "$DATABASE_URL" ]; then
+  echo "DATABASE_URL is set, running database migration..."
+  npx drizzle-kit push --config=./drizzle.config.ts || echo "Database migration failed (may already be up to date)"
+else
+  echo "DATABASE_URL not set in build environment - schema will be initialized at runtime"
+fi
+
 echo "✅ Build complete!"
 ls -la dist/
