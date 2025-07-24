@@ -1,0 +1,82 @@
+Standard build failed, trying fallback...
+failed to load config from /opt/render/project/src/vite.config.ts
+error during build:
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /opt/render/project/src/node_modules/.vite-temp/vite.config.ts.timestamp-1753357054575-7aafb94cc2873.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:137:49)
+⚠️ Basic build failed, trying manual approach...
+  dist/public/index.js   1.1mb ⚠️
+  dist/public/index.css  2.2kb
+⚡ Done in 372ms
+🏗️ Building backend...
+  dist/index.js  55.6kb
+⚡ Done in 7ms
+🗄️ Setting up database and admin...
+DATABASE_URL detected, initializing...
+Reading config file '/opt/render/project/src/drizzle.config.ts'
+Cannot find module 'drizzle-kit'
+Require stack:
+- /opt/render/project/src/drizzle.config.ts
+- /opt/render/.cache/_npx/7c7555b0b81cc7e0/node_modules/drizzle-kit/bin.cjs
+Schema push completed or already exists
+Creating admin user...
+🔗 Connecting to database...
+❌ Database setup error: ErrorEvent {
+  [Symbol(kTarget)]: WebSocket {
+    _events: [Object: null prototype] {
+      error: [Function],
+      message: [Function],
+      close: [Function],
+      open: [Function]
+    },
+    _eventsCount: 4,
+    _maxListeners: undefined,
+    _binaryType: 'arraybuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: <Buffer >,
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _url: 'wss://dpg-d20akingi27c73ccgee0-a/v2',
+    _req: null,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kType)]: 'error',
+  [Symbol(kError)]: Error: connect ECONNREFUSED 10.224.85.90:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '10.224.85.90',
+    port: 443
+  },
+  [Symbol(kMessage)]: 'connect ECONNREFUSED 10.224.85.90:443'
+}
+Error details: {
+  message: 'connect ECONNREFUSED 10.224.85.90:443',
+  code: undefined,
+  detail: undefined
+}
+❌ Admin setup failed
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys

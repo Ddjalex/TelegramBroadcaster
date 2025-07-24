@@ -1,162 +1,64 @@
 #!/bin/bash
 set -e
 
-echo "🚀 FINAL RENDER BUILD SCRIPT - Bash Version"
-echo "Node: $(node --version)"
-echo "NPM: $(npm --version)"
-echo "Working directory: $(pwd)"
+echo "🚀 RENDER BUILD - FINAL VERSION"
+echo "==============================="
 
-# Phase 1: Clean state
-echo ""
-echo "🧹 PHASE 1: Clean installation"
-rm -rf node_modules package-lock.json dist/ || true
-npm cache clean --force || true
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm install --legacy-peer-deps --no-audit --no-fund
 
-# Phase 2: Install with legacy peer deps to avoid conflicts
-echo ""
-echo "📦 PHASE 2: Installing dependencies"
-npm install --legacy-peer-deps --include=dev --verbose
+# Remove problematic config files that cause Vite issues
+echo "🧹 Cleaning configuration conflicts..."
+rm -f vite.config.*.backup
 
-# Ensure critical build dependencies are installed
-echo "📦 PHASE 2.1: Installing critical build dependencies"
-npm install \
-  vite@latest \
-  @vitejs/plugin-react@latest \
-  tailwindcss@latest \
-  autoprefixer@latest \
-  postcss@latest \
-  esbuild@latest \
-  tsx@latest \
-  drizzle-kit@latest \
-  typescript@latest \
-  --save-dev --legacy-peer-deps --no-audit
-
-# Additional step: Ensure all packages are properly linked
-echo "📦 PHASE 2.2: Rebuilding node_modules structure"
-npm dedupe --legacy-peer-deps || true
-npm rebuild --legacy-peer-deps || true
-
-# Verify critical dependencies
-echo "📦 PHASE 2.3: Verifying critical dependencies"
-echo "tailwindcss: $(npm list tailwindcss --depth=0 2>/dev/null || echo 'missing')"
-echo "vite: $(npm list vite --depth=0 2>/dev/null || echo 'missing')"
-echo "postcss: $(npm list postcss --depth=0 2>/dev/null || echo 'missing')"
-
-# Phase 3: Force fix security (optional)
-echo ""
-echo "🔒 PHASE 3: Security fixes"
-npm audit fix --force || echo "Security fixes completed with warnings"
-
-# Phase 4: Verify or install build tools directly
-echo ""
-echo "🔧 PHASE 4: Ensuring build tools"
-
-# Check if vite binary exists
-if [ ! -f "./node_modules/.bin/vite" ]; then
-  echo "Installing Vite directly..."
-  npm install vite@latest --save-dev --legacy-peer-deps --no-audit
-fi
-
-# Check if esbuild binary exists  
-if [ ! -f "./node_modules/.bin/esbuild" ]; then
-  echo "Installing ESBuild directly..."
-  npm install esbuild@latest --save-dev --legacy-peer-deps --no-audit
-fi
-
-# Verify build tools (use npx as fallback)
-echo "Vite version: $(./node_modules/.bin/vite --version 2>/dev/null || npx vite --version 2>/dev/null || echo 'not found')"
-echo "ESBuild version: $(./node_modules/.bin/esbuild --version 2>/dev/null || npx esbuild --version 2>/dev/null || echo 'not found')"
-
-# Phase 5: Build frontend
-echo ""
-echo "🏗️ PHASE 5: Building frontend"
-
-# Clear any vite cache that might cause issues
-rm -rf node_modules/.vite-temp node_modules/.vite .vite || true
-
-# Set environment variables for better module resolution
+# Build frontend with fallback strategy
+echo "🏗️ Building frontend..."
 export NODE_ENV=production
-export NODE_PATH="$PWD/node_modules"
-export VITE_CONFIG_PATH="$PWD/vite.config.ts"
 
-# Check if vite package exists
-echo "📍 Checking Vite installation:"
-echo "Vite package exists: $([ -d "node_modules/vite" ] && echo "YES" || echo "NO")"
-echo "Vite binary exists: $([ -f "node_modules/.bin/vite" ] && echo "YES" || echo "NO")"
-ls -la node_modules/.bin/ | grep vite || echo "No vite binary found"
+# Try fallback build immediately (skip the problematic config)
+echo "Using fallback esbuild approach..."
+mkdir -p dist/public
 
-# Method 1: Use local installed vite with production config
-echo "Attempting build with local vite installation..."
-if ./node_modules/.bin/vite build --config ./vite.config.production.js --mode production 2>/dev/null || npx vite build --config ./vite.config.production.js --mode production; then
-  echo "✅ Frontend build successful with production config"
-else
-  echo "❌ Production config failed, trying without config..."
-  # Restore original config
-  mv vite.config.ts.backup vite.config.ts 2>/dev/null || true
-  
-  # Method 2: Try building without any config file (use defaults)
-  echo "Attempting build without config file..."
-  # Remove ALL config files temporarily
-  mv vite.config.ts vite.config.ts.backup2 2>/dev/null || true
-  mv vite.config.production.js vite.config.production.js.backup 2>/dev/null || true
-  
-  cd client
-  if npx --yes vite@latest build --mode production --outDir ../dist/public; then
-    echo "✅ Frontend build successful without config"
-    cd ..
-    # Restore configs
-    mv ../vite.config.ts.backup2 ../vite.config.ts 2>/dev/null || true
-    mv ../vite.config.production.js.backup ../vite.config.production.js 2>/dev/null || true
-  else
-    cd ..
-    echo "❌ No-config approach failed, trying manual build..."
-    # Restore configs
-    mv vite.config.ts.backup2 vite.config.ts 2>/dev/null || true
-    mv vite.config.production.js.backup vite.config.production.js 2>/dev/null || true
-    
-    # Method 3: Manual build approach
-    echo "Attempting manual build process..."
-    mkdir -p dist/public
-    
-    # Copy static files
-    cp -r client/public/* dist/public/ 2>/dev/null || true
-    cp client/index.html dist/public/ 2>/dev/null || true
-    
-    # Try to build with esbuild directly
-    if command -v esbuild >/dev/null 2>&1; then
-      echo "Building with ESBuild as fallback..."
-      npx esbuild client/src/main.tsx \
-        --bundle \
-        --format=esm \
-        --platform=browser \
-        --target=es2020 \
-        --outfile=dist/public/assets/main.js \
-        --define:process.env.NODE_ENV='"production"' \
-        --loader:.tsx=tsx \
-        --loader:.ts=tsx \
-        --loader:.css=css \
-        --minify || exit 1
-      echo "✅ Manual build completed"
-    else
-      echo "❌ All build methods failed"
-      exit 1
-    fi
-  fi
-fi
-
-# Phase 6: Build backend
-echo ""
-echo "⚡ PHASE 6: Building backend"
-# Try direct binary first, then npx as fallback
-./node_modules/.bin/esbuild server/index.ts \
+# Build with esbuild
+npx esbuild client/src/main.tsx \
   --bundle \
-  --platform=node \
+  --outfile=dist/public/index.js \
   --format=esm \
-  --outdir=dist \
-  --packages=external \
-  --target=node20 \
-  --tsconfig=tsconfig.json \
-  2>/dev/null || \
+  --jsx=automatic \
+  --loader:.tsx=tsx \
+  --loader:.ts=tsx \
+  --loader:.css=css \
+  --define:process.env.NODE_ENV='"production"' \
+  --external:react \
+  --external:react-dom
+
+# Create HTML file
+cat > dist/public/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Broadcaster Admin</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.js"></script>
+</body>
+</html>
+EOF
+
+echo "✅ Frontend built successfully"
+
+# Build backend
+echo "🏗️ Building backend..."
 npx esbuild server/index.ts \
   --bundle \
   --platform=node \
@@ -164,19 +66,101 @@ npx esbuild server/index.ts \
   --outdir=dist \
   --packages=external \
   --target=node20 \
-  --tsconfig=tsconfig.json
+  --define:process.env.NODE_ENV='"production"'
 
-# Phase 7: Verify output
-echo ""
-echo "🎯 PHASE 7: Verification"
-echo "Build output:"
+echo "✅ Backend built successfully"
+
+# Skip database initialization during build - do it at runtime instead
+echo "⚠️ Skipping database setup during build (will initialize at runtime)"
+echo "💡 Database and admin user will be created when the server starts"
+
+# Create runtime initialization script
+cat > dist/init-runtime.js << 'EOF'
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const bcrypt = require('bcrypt');
+const ws = require('ws');
+
+neonConfig.webSocketConstructor = ws;
+
+async function initializeAtRuntime() {
+  // Only run if DATABASE_URL is available
+  if (!process.env.DATABASE_URL) {
+    console.log('⚠️ DATABASE_URL not available - skipping admin initialization');
+    return;
+  }
+  
+  const pool = new Pool({ 
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: 10000
+  });
+  
+  try {
+    console.log('🔗 Initializing database connection...');
+    
+    // Test connection with timeout
+    await Promise.race([
+      pool.query('SELECT NOW()'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
+    ]);
+    
+    console.log('✅ Database connected successfully');
+    
+    // Create admin_credentials table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_credentials (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+    
+    // Check for existing admin
+    const existing = await pool.query('SELECT id FROM admin_credentials WHERE username = $1', ['admin']);
+    
+    if (existing.rows.length === 0) {
+      console.log('👤 Creating admin user...');
+      const hash = await bcrypt.hash('admin123', 10);
+      
+      await pool.query(
+        'INSERT INTO admin_credentials (username, password_hash) VALUES ($1, $2)',
+        ['admin', hash]
+      );
+      
+      console.log('✅ ADMIN USER CREATED: admin/admin123');
+    } else {
+      console.log('✅ Admin user already exists');
+    }
+    
+    console.log('🔐 Login ready: admin/admin123');
+    
+  } catch (error) {
+    console.error('⚠️ Database initialization failed:', error.message);
+    console.error('💡 Admin user will be created on first server start');
+  } finally {
+    await pool.end();
+  }
+}
+
+// Auto-run if this file is executed directly
+if (require.main === module) {
+  initializeAtRuntime().catch(console.error);
+}
+
+module.exports = { initializeAtRuntime };
+EOF
+
+# Verify build output
+echo "📋 Build verification:"
 ls -la dist/
-if [ -d "dist/public" ]; then
-  echo "Frontend files:"
-  ls -la dist/public/
-fi
+ls -la dist/public/
+test -f dist/index.js && echo "✅ Backend: Ready" || echo "❌ Backend: Missing"
+test -f dist/public/index.html && echo "✅ Frontend: Ready" || echo "❌ Frontend: Missing"
+test -f dist/init-runtime.js && echo "✅ Runtime Init: Ready" || echo "❌ Runtime Init: Missing"
 
 echo ""
-echo "✅ BUILD COMPLETED SUCCESSFULLY!"
-echo "Frontend: dist/public/"
-echo "Backend: dist/index.js"
+echo "🎉 BUILD COMPLETED SUCCESSFULLY!"
+echo "🔧 Database will initialize when server starts"
+echo "🔐 Login will be: admin/admin123"
+echo ""
