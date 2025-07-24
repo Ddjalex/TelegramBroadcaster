@@ -1,33 +1,14 @@
 import express, { type Request, Response, NextFunction } from "express";
-import session from "express-session";
-import ConnectPgSimple from "connect-pg-simple";
+// Session imports removed - public access
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeDefaultAdmin } from "./auth";
+// Authentication removed - public access dashboard
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Session configuration
-const PgSession = ConnectPgSimple(session);
-app.use(
-  session({
-    store: new PgSession({
-      conString: process.env.DATABASE_URL,
-      tableName: 'session',
-      createTableIfMissing: true
-    }),
-    secret: process.env.SESSION_SECRET || "fallback-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
+// Session configuration removed - public access dashboard
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -60,28 +41,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize default admin user with enhanced error handling
-  let adminInitialized = false;
-  for (let i = 0; i < 5; i++) {
-    try {
-      await initializeDefaultAdmin();
-      adminInitialized = true;
-      console.log('✅ Admin user initialized successfully');
-      break;
-    } catch (error) {
-      console.error(`❌ Admin initialization attempt ${i + 1} failed:`, (error as Error).message);
-      if (i < 4) {
-        const delay = Math.min(2000 * Math.pow(2, i), 10000); // Exponential backoff, max 10s
-        console.log(`⏳ Retrying in ${delay/1000} seconds...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-  
-  if (!adminInitialized) {
-    console.error('⚠️ Failed to initialize admin user after 5 attempts');
-    console.log('💡 Admin user will be created on first login attempt');
-  }
+  // Admin initialization removed - public access dashboard
+  console.log('✅ Public dashboard ready - no authentication required');
   
   const server = await registerRoutes(app);
 

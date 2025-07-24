@@ -4,7 +4,7 @@ import {
   messageDeliveries, 
   botSettings,
   scheduledMessages,
-  adminCredentials,
+
   type User, 
   type InsertUser,
   type Broadcast,
@@ -15,8 +15,7 @@ import {
   type InsertBotSetting,
   type ScheduledMessage,
   type InsertScheduledMessage,
-  type AdminCredential,
-  type InsertAdminCredential
+  // Admin types removed - public access
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, and, gte, lt } from "drizzle-orm";
@@ -66,10 +65,7 @@ export interface IStorage {
   deleteScheduledMessage(id: number): Promise<void>;
   getPendingScheduledMessages(): Promise<ScheduledMessage[]>;
 
-  // Admin authentication operations
-  getAdminByUsername(username: string): Promise<AdminCredential | undefined>;
-  createAdmin(admin: InsertAdminCredential): Promise<AdminCredential>;
-  updateAdminPassword(username: string, passwordHash: string): Promise<void>;
+  // Admin operations removed - public access dashboard
 
   // Analytics
   getDashboardStats(): Promise<{
@@ -349,29 +345,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  // Admin authentication operations
-  async getAdminByUsername(username: string): Promise<AdminCredential | undefined> {
-    const [admin] = await db
-      .select()
-      .from(adminCredentials)
-      .where(eq(adminCredentials.username, username));
-    return admin || undefined;
-  }
-
-  async createAdmin(admin: InsertAdminCredential): Promise<AdminCredential> {
-    const [newAdmin] = await db
-      .insert(adminCredentials)
-      .values(admin)
-      .returning();
-    return newAdmin;
-  }
-
-  async updateAdminPassword(username: string, passwordHash: string): Promise<void> {
-    await db
-      .update(adminCredentials)
-      .set({ passwordHash, updatedAt: new Date() })
-      .where(eq(adminCredentials.username, username));
-  }
+  // Admin authentication operations removed - public access dashboard
 
 }
 
