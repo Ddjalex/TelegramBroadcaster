@@ -1,10 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Configure Neon for serverless environments
-neonConfig.webSocketConstructor = ws;
 
 // Enhanced database connection validation
 if (!process.env.DATABASE_URL) {
@@ -31,7 +27,7 @@ const poolConfig = {
 };
 
 export const pool = new Pool(poolConfig);
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
 // Test database connection on startup
 pool.on('connect', () => {
