@@ -39,7 +39,7 @@ RENDER_EXTERNAL_URL=https://your-service-name.onrender.com
 
 ### 3. Configure Build Settings
 ```
-Build Command: npm install && node render-build.js
+Build Command: chmod +x render-build-final.sh && ./render-build-final.sh
 Start Command: node start-production.js
 Node Version: 20.x
 ```

@@ -35,7 +35,7 @@
 ## Updated Build Command for Render:
 
 ```bash
-Build Command: npm install && node render-build.js
+Build Command: chmod +x render-build-final.sh && ./render-build-final.sh
 Start Command: node start-production.js
 Node Version: 20.x
 ```
