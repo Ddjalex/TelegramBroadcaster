@@ -69,29 +69,48 @@ echo "Vite package exists: $([ -d "node_modules/vite" ] && echo "YES" || echo "N
 echo "Vite binary exists: $([ -f "node_modules/.bin/vite" ] && echo "YES" || echo "NO")"
 ls -la node_modules/.bin/ | grep vite || echo "No vite binary found"
 
-# Method 1: Try with explicit config and force
-echo "Attempting build with explicit config..."
-if npx --yes vite@latest build --config ./vite.config.ts --mode production --force; then
-  echo "✅ Frontend build successful with explicit config"
+# Method 1: Try with simplified production config
+echo "Attempting build with simplified production config..."
+if npx --yes vite@latest build --config ./vite.config.production.js --mode production; then
+  echo "✅ Frontend build successful with production config"
 else
-  echo "❌ Explicit config failed, trying simplified approach..."
+  echo "❌ Production config failed, trying without config..."
   
-  # Method 2: Try with NODE_OPTIONS to increase module resolution
-  export NODE_OPTIONS="--max-old-space-size=4096"
-  
-  if NODE_PATH="$PWD/node_modules:$NODE_PATH" npx vite build --mode production; then
-    echo "✅ Frontend build successful with NODE_PATH"
+  # Method 2: Try building without any config file (use defaults)
+  echo "Attempting build without config file..."
+  cd client
+  if npx --yes vite@latest build --mode production --outDir ../dist/public; then
+    echo "✅ Frontend build successful without config"
+    cd ..
   else
-    echo "❌ NODE_PATH approach failed, trying direct node execution..."
+    cd ..
+    echo "❌ No-config approach failed, trying manual build..."
     
-    # Method 3: Try direct node execution
-    if [ -f "node_modules/vite/bin/vite.js" ]; then
-      node node_modules/vite/bin/vite.js build --mode production
+    # Method 3: Manual build approach
+    echo "Attempting manual build process..."
+    mkdir -p dist/public
+    
+    # Copy static files
+    cp -r client/public/* dist/public/ 2>/dev/null || true
+    cp client/index.html dist/public/ 2>/dev/null || true
+    
+    # Try to build with esbuild directly
+    if command -v esbuild >/dev/null 2>&1; then
+      echo "Building with ESBuild as fallback..."
+      npx esbuild client/src/main.tsx \
+        --bundle \
+        --format=esm \
+        --platform=browser \
+        --target=es2020 \
+        --outfile=dist/public/assets/main.js \
+        --define:process.env.NODE_ENV='"production"' \
+        --loader:.tsx=tsx \
+        --loader:.ts=tsx \
+        --loader:.css=css \
+        --minify || exit 1
+      echo "✅ Manual build completed"
     else
-      echo "❌ All methods failed. Vite installation issue detected."
-      echo "📋 Debug info:"
-      echo "Working directory: $(pwd)"
-      echo "Node modules dir: $(ls -la node_modules/ | head -5)"
+      echo "❌ All build methods failed"
       exit 1
     fi
   fi
